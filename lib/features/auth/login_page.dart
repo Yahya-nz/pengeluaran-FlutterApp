@@ -5,6 +5,7 @@ import '../dashboard/dashboard_page.dart';
 import 'auth_actions.dart';
 import 'auth_scaffold.dart';
 import 'auth_text_field.dart';
+import 'google_auth_service.dart';
 import 'register_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -23,6 +24,7 @@ class _LoginPageState extends State<LoginPage> {
 
   bool _passwordHidden = true;
   bool _canSubmit = false;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -47,19 +49,64 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (_formKey.currentState?.validate() != true) return;
-    Navigator.of(context).pushReplacementNamed(DashboardPage.routeName);
+
+    setState(() => _isSubmitting = true);
+    try {
+      final user = await GoogleAuthService.instance.signInWithEmail(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => DashboardPage(
+            userName: _displayNameFromUser(user.displayName, user.email),
+            userEmail: user.email ?? _emailController.text.trim(),
+          ),
+        ),
+      );
+    } on GoogleAuthSetupException catch (error) {
+      if (!mounted) return;
+      _showGoogleAuthMessage(error.message);
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
   }
 
-  void _continueWithGoogle() {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => const DashboardPage(
-          userName: 'Pengguna Google',
-          userEmail: 'google.demo@saku.app',
+  Future<void> _continueWithGoogle() async {
+    if (_isSubmitting) return;
+    setState(() => _isSubmitting = true);
+    try {
+      final user = await GoogleAuthService.instance.authenticate();
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => DashboardPage(
+            userName: _displayNameFromUser(user.displayName, user.email),
+            userEmail: user.email ?? 'google@saku.app',
+          ),
         ),
-      ),
+      );
+    } on GoogleAuthSetupException catch (error) {
+      if (!mounted) return;
+      _showGoogleAuthMessage(error.message);
+    } catch (_) {
+      if (!mounted) return;
+      _showGoogleAuthMessage('Login Google dibatalkan atau belum siap.');
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
+  }
+
+  void _showGoogleAuthMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
     );
   }
 
@@ -107,8 +154,8 @@ class _LoginPageState extends State<LoginPage> {
         ),
         const SizedBox(height: 54),
         AuthPrimaryButton(
-          label: 'Masuk',
-          enabled: _canSubmit,
+          label: _isSubmitting ? 'Memproses...' : 'Masuk',
+          enabled: _canSubmit && !_isSubmitting,
           onPressed: _submit,
         ),
         const AuthDividerLabel(),
@@ -164,5 +211,15 @@ class _LoginPageState extends State<LoginPage> {
     if ((value ?? '').isEmpty) return 'Password wajib diisi';
     if ((value ?? '').length < 6) return 'Minimal 6 karakter';
     return null;
+  }
+
+  String _displayNameFromUser(String? displayName, String? email) {
+    final name = displayName?.trim();
+    if (name != null && name.isNotEmpty) return name;
+
+    final prefix = email?.split('@').first.trim();
+    if (prefix != null && prefix.isNotEmpty) return prefix;
+
+    return 'Pengguna';
   }
 }

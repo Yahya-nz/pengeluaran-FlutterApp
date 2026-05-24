@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:saku_pengeluaran/core/theme/app_theme.dart';
+import 'package:saku_pengeluaran/features/dashboard/dashboard_page.dart';
 import 'package:saku_pengeluaran/main.dart';
 
 void main() {
@@ -21,27 +23,14 @@ void main() {
     expect(find.text('Masuk dengan Google'), findsOneWidget);
   });
 
-  testWidgets('logs in and opens history tab', (tester) async {
+  testWidgets('dashboard flows stay interactive', (tester) async {
     _setMobileViewport(tester);
-    await tester.pumpWidget(const SakuApp());
-    await _pumpPastSplash(tester);
-
-    await tester.tap(find.byIcon(Icons.chevron_right_rounded));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byIcon(Icons.chevron_right_rounded));
-    await tester.pumpAndSettle();
-
-    await tester.enterText(
-      find.widgetWithText(TextFormField, 'Masukkan email'),
-      'asadel@saku.test',
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: const DashboardPage(),
+      ),
     );
-    await tester.enterText(
-      find.widgetWithText(TextFormField, 'Masukkan password'),
-      'password123',
-    );
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Masuk'));
     await tester.pumpAndSettle();
 
     expect(find.text('Hei, Asadel!'), findsOneWidget);

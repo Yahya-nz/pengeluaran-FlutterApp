@@ -156,7 +156,9 @@ class _ProfileDashboardState extends State<_ProfileDashboard> {
                 subtitle: 'Kembali ke halaman masuk',
                 iconColor: SakuColors.mango500,
                 trailing: Icons.chevron_right_rounded,
-                onTap: () {
+                onTap: () async {
+                  await GoogleAuthService.instance.signOut();
+                  if (!context.mounted) return;
                   Navigator.of(context)
                       .pushReplacementNamed(LoginPage.routeName);
                 },

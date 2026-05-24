@@ -20,48 +20,125 @@ class _HomeDashboard extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.only(bottom: 96),
       children: [
-        Container(
-          padding: const EdgeInsets.fromLTRB(22, 22, 22, 30),
-          decoration: const BoxDecoration(
-            color: SakuColors.blue100,
-            image: DecorationImage(
-              image: AssetImage('assets/background beranda biru.png'),
-              repeat: ImageRepeat.repeat,
-              alignment: Alignment.topLeft,
-            ),
-          ),
-          child: Column(
-            children: [
-              _BalanceCard(
-                userName: userName,
-                onLogout: () {
-                  Navigator.of(context).pushReplacementNamed(
-                    LoginPage.routeName,
-                  );
-                },
-              ),
-              const SizedBox(height: 20),
-              _HeroTools(
-                onOpenBudget: onOpenBudget,
-                onOpenInsight: onOpenInsight,
-              ),
-            ],
-          ),
+        _HomeHeroSection(
+          userName: userName,
+          onLogout: () async {
+            await GoogleAuthService.instance.signOut();
+            if (!context.mounted) return;
+            Navigator.of(context).pushReplacementNamed(
+              LoginPage.routeName,
+            );
+          },
+          onOpenBudget: onOpenBudget,
+          onOpenInsight: onOpenInsight,
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-          child: Column(
-            children: [
-              _RecentNotesCard(
-                transactions: transactions.take(2).toList(),
-                onOpenMore: onOpenHistory,
-              ),
-              const SizedBox(height: 20),
-              const _ActiveDebtCard(),
-            ],
-          ),
+        _HomeBodyPanel(
+          transactions: transactions,
+          onOpenHistory: onOpenHistory,
         ),
       ],
+    );
+  }
+}
+
+class _HomeHeroSection extends StatelessWidget {
+  const _HomeHeroSection({
+    required this.userName,
+    required this.onLogout,
+    required this.onOpenBudget,
+    required this.onOpenInsight,
+  });
+
+  final String userName;
+  final VoidCallback onLogout;
+  final VoidCallback onOpenBudget;
+  final VoidCallback onOpenInsight;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 548,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          const Positioned(
+            left: 0,
+            top: 0,
+            right: 0,
+            height: 438,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: SakuColors.blue100,
+                image: DecorationImage(
+                  image: AssetImage('assets/background beranda biru.png'),
+                  fit: BoxFit.cover,
+                  alignment: Alignment.topCenter,
+                ),
+              ),
+            ),
+          ),
+          const Positioned(
+            left: 0,
+            right: 0,
+            top: 384,
+            bottom: 0,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: SakuColors.white,
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(46),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 22,
+            right: 22,
+            top: 50,
+            child: _BalanceCard(
+              userName: userName,
+              onLogout: onLogout,
+            ),
+          ),
+          Positioned(
+            left: 20,
+            right: 20,
+            top: 342,
+            child: _HeroTools(
+              onOpenBudget: onOpenBudget,
+              onOpenInsight: onOpenInsight,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HomeBodyPanel extends StatelessWidget {
+  const _HomeBodyPanel({
+    required this.transactions,
+    required this.onOpenHistory,
+  });
+
+  final List<_TransactionItem> transactions;
+  final VoidCallback onOpenHistory;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: SakuColors.white,
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+      child: Column(
+        children: [
+          _RecentNotesCard(
+            transactions: transactions.take(2).toList(),
+            onOpenMore: onOpenHistory,
+          ),
+          const SizedBox(height: 20),
+          const _ActiveDebtCard(),
+        ],
+      ),
     );
   }
 }
