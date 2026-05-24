@@ -7,6 +7,7 @@ void main() {
   testWidgets('shows onboarding and navigates to login', (tester) async {
     _setMobileViewport(tester);
     await tester.pumpWidget(const SakuApp());
+    await _pumpPastSplash(tester);
 
     expect(find.text('Kelola Uangmu Lebih Cepat'), findsOneWidget);
 
@@ -23,6 +24,7 @@ void main() {
   testWidgets('logs in and opens history tab', (tester) async {
     _setMobileViewport(tester);
     await tester.pumpWidget(const SakuApp());
+    await _pumpPastSplash(tester);
 
     await tester.tap(find.byIcon(Icons.chevron_right_rounded));
     await tester.pumpAndSettle();
@@ -318,4 +320,9 @@ void _setMobileViewport(WidgetTester tester) {
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
+}
+
+Future<void> _pumpPastSplash(WidgetTester tester) async {
+  await tester.pump(const Duration(milliseconds: 1300));
+  await tester.pumpAndSettle();
 }

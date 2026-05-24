@@ -9,6 +9,7 @@ import 'features/auth/login_page.dart';
 import 'features/auth/register_page.dart';
 import 'features/dashboard/dashboard_page.dart';
 import 'features/onboarding/onboarding_page.dart';
+import 'features/splash/splash_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +35,7 @@ class SakuApp extends StatefulWidget {
 class _SakuAppState extends State<SakuApp> {
   final _navigatorKey = GlobalKey<NavigatorState>();
   StreamSubscription<Uri?>? _widgetClickSubscription;
+  bool _openedFromHomeWidget = false;
 
   @override
   void initState() {
@@ -63,6 +65,7 @@ class _SakuAppState extends State<SakuApp> {
 
   void _handleWidgetUri(Uri? uri) {
     if (!_isAddNoteUri(uri)) return;
+    _openedFromHomeWidget = true;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final navigator = _navigatorKey.currentState;
@@ -85,7 +88,7 @@ class _SakuAppState extends State<SakuApp> {
   @override
   Widget build(BuildContext context) {
     final routeFromUrl = Uri.base.fragment.split('?').first;
-    final initialRoute = routeFromUrl.startsWith('/') && routeFromUrl.length > 1
+    final nextRoute = routeFromUrl.startsWith('/') && routeFromUrl.length > 1
         ? routeFromUrl
         : OnboardingPage.routeName;
 
@@ -94,8 +97,14 @@ class _SakuAppState extends State<SakuApp> {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       navigatorKey: _navigatorKey,
-      initialRoute: initialRoute,
+      initialRoute: SplashPage.routeName,
       routes: {
+        SplashPage.routeName: (_) => SplashPage(
+              onFinished: () {
+                if (_openedFromHomeWidget) return;
+                _navigatorKey.currentState?.pushReplacementNamed(nextRoute);
+              },
+            ),
         OnboardingPage.routeName: (_) => const OnboardingPage(),
         LoginPage.routeName: (_) => const LoginPage(),
         RegisterPage.routeName: (_) => const RegisterPage(),
