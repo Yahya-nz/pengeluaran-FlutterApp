@@ -752,16 +752,81 @@ class _BudgetDashboard extends StatelessWidget {
   }
 }
 
-class _InsightDashboard extends StatelessWidget {
+class _InsightDashboard extends StatefulWidget {
   const _InsightDashboard({required this.onBack});
 
   final VoidCallback onBack;
 
   @override
+  State<_InsightDashboard> createState() => _InsightDashboardState();
+}
+
+class _InsightDashboardState extends State<_InsightDashboard> {
+  final _scrollController = ScrollController();
+  final List<_ChatMessage> _messages = const [
+    _ChatMessage(
+      text:
+          'Halo, aku Saku AI. Untuk demo ini aku bisa bantu baca pola catatan, kasih tips hemat, dan bikin arahan budgeting sederhana.',
+      fromUser: false,
+      time: '1:27',
+    ),
+  ].toList();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _sendMessage(String text) {
+    final message = text.trim();
+    if (message.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tulis pertanyaan dulu sebelum dikirim')),
+      );
+      return;
+    }
+
+    setState(() {
+      _messages
+          .add(_ChatMessage(text: message, fromUser: true, time: 'Sekarang'));
+      _messages.add(
+        _ChatMessage(
+          text: _buildDemoReply(message),
+          fromUser: false,
+          time: 'Sekarang',
+        ),
+      );
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scrollController.hasClients) return;
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOut,
+      );
+    });
+  }
+
+  String _buildDemoReply(String message) {
+    final lower = message.toLowerCase();
+    if (lower.contains('boros') || lower.contains('bulan')) {
+      return 'Dari contoh data, pengeluaran yang paling terasa ada di Makanan dan Transportasi. Coba pasang limit mingguan kecil dulu, lalu cek ulang di tab Grafik.';
+    }
+    if (lower.contains('hemat') || lower.contains('tips')) {
+      return 'Mulai dari aturan 3 langkah: catat pengeluaran kecil, pisahkan dompet kebutuhan dan jajan, lalu set budget harian. Yang penting konsisten dulu, bukan langsung sempurna.';
+    }
+    if (lower.contains('catatan') || lower.contains('pembelian')) {
+      return 'Untuk catatan cepat, pakai tombol tambah di tengah, pilih kategori, isi nominal, lalu simpan. Nanti ringkasannya ikut masuk ke widget homescreen Android.';
+    }
+    return 'Aku catat pertanyaanmu. Versi demo ini menjawab secara lokal dulu; nanti bisa disambungkan ke AI beneran kalau customer sudah siap pakai API.';
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _ChildPageTopBar(title: 'Saku Insight', onBack: onBack),
+        _ChildPageTopBar(title: 'Saku AI', onBack: widget.onBack),
         Expanded(
           child: Container(
             color: SakuColors.blue50,
@@ -769,24 +834,19 @@ class _InsightDashboard extends StatelessWidget {
               children: [
                 Expanded(
                   child: ListView(
+                    controller: _scrollController,
                     padding: const EdgeInsets.fromLTRB(42, 30, 42, 24),
-                    children: const [
+                    children: [
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: _QuickQuestionBubble(),
+                        child: _QuickQuestionBubble(onQuestion: _sendMessage),
                       ),
-                      SizedBox(height: 4),
-                      Text(
-                        '1:27',
-                        style: TextStyle(
-                          color: SakuColors.neutral300,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                      const SizedBox(height: 18),
+                      ..._messages.map(_ChatBubble.new),
                     ],
                   ),
                 ),
-                const _InsightComposer(),
+                _InsightComposer(onSend: _sendMessage),
               ],
             ),
           ),
@@ -3051,7 +3111,9 @@ class _EmptyStateCard extends StatelessWidget {
 }
 
 class _QuickQuestionBubble extends StatelessWidget {
-  const _QuickQuestionBubble();
+  const _QuickQuestionBubble({required this.onQuestion});
+
+  final ValueChanged<String> onQuestion;
 
   @override
   Widget build(BuildContext context) {
@@ -3062,10 +3124,10 @@ class _QuickQuestionBubble extends StatelessWidget {
         color: SakuColors.blue100,
         borderRadius: BorderRadius.circular(14),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Pertanyaan Cepat',
             style: TextStyle(
               color: SakuColors.blue700,
@@ -3073,12 +3135,12 @@ class _QuickQuestionBubble extends StatelessWidget {
               fontWeight: FontWeight.w900,
             ),
           ),
-          SizedBox(height: 10),
-          _QuestionPill('Catatan pembelian cepat'),
-          SizedBox(height: 8),
-          _QuestionPill('Tips hemat buat aku dong'),
-          SizedBox(height: 8),
-          _QuestionPill('Bulan ini boros dimana?'),
+          const SizedBox(height: 10),
+          _QuestionPill('Catatan pembelian cepat', onTap: onQuestion),
+          const SizedBox(height: 8),
+          _QuestionPill('Tips hemat buat aku dong', onTap: onQuestion),
+          const SizedBox(height: 8),
+          _QuestionPill('Bulan ini boros dimana?', onTap: onQuestion),
         ],
       ),
     );
@@ -3086,9 +3148,10 @@ class _QuickQuestionBubble extends StatelessWidget {
 }
 
 class _QuestionPill extends StatelessWidget {
-  const _QuestionPill(this.text);
+  const _QuestionPill(this.text, {required this.onTap});
 
   final String text;
+  final ValueChanged<String> onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -3096,11 +3159,7 @@ class _QuestionPill extends StatelessWidget {
       color: SakuColors.blue300,
       borderRadius: BorderRadius.circular(13),
       child: InkWell(
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Pertanyaan dipilih: $text')),
-          );
-        },
+        onTap: () => onTap(text),
         borderRadius: BorderRadius.circular(13),
         child: Container(
           width: double.infinity,
@@ -3114,6 +3173,77 @@ class _QuestionPill extends StatelessWidget {
               fontSize: 13,
               fontWeight: FontWeight.w700,
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ChatBubble extends StatelessWidget {
+  const _ChatBubble(this.message);
+
+  final _ChatMessage message;
+
+  @override
+  Widget build(BuildContext context) {
+    final alignment =
+        message.fromUser ? Alignment.centerRight : Alignment.centerLeft;
+    final color = message.fromUser ? SakuColors.blue300 : SakuColors.white;
+    final textColor = message.fromUser ? SakuColors.white : SakuColors.black;
+
+    return Align(
+      alignment: alignment,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 286),
+          child: Column(
+            crossAxisAlignment: message.fromUser
+                ? CrossAxisAlignment.end
+                : CrossAxisAlignment.start,
+            children: [
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.only(
+                    topLeft: const Radius.circular(18),
+                    topRight: const Radius.circular(18),
+                    bottomLeft: Radius.circular(message.fromUser ? 18 : 4),
+                    bottomRight: Radius.circular(message.fromUser ? 4 : 18),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: SakuColors.black.withValues(alpha: 0.08),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+                  child: Text(
+                    message.text,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 14,
+                      height: 1.38,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                message.time,
+                style: const TextStyle(
+                  color: SakuColors.neutral300,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -3193,7 +3323,9 @@ class _NotificationRow extends StatelessWidget {
 }
 
 class _InsightComposer extends StatefulWidget {
-  const _InsightComposer();
+  const _InsightComposer({required this.onSend});
+
+  final ValueChanged<String> onSend;
 
   @override
   State<_InsightComposer> createState() => _InsightComposerState();
@@ -3210,15 +3342,7 @@ class _InsightComposerState extends State<_InsightComposer> {
 
   void _send() {
     final message = _controller.text.trim();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message.isEmpty
-              ? 'Tulis pertanyaan dulu sebelum dikirim'
-              : 'Pertanyaan terkirim: $message',
-        ),
-      ),
-    );
+    widget.onSend(message);
     if (message.isNotEmpty) {
       _controller.clear();
     }
@@ -5300,6 +5424,18 @@ class _NotificationItem {
   final String time;
   final IconData icon;
   final Color iconColor;
+}
+
+class _ChatMessage {
+  const _ChatMessage({
+    required this.text,
+    required this.fromUser,
+    required this.time,
+  });
+
+  final String text;
+  final bool fromUser;
+  final String time;
 }
 
 class _WalletItem {

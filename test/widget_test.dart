@@ -78,24 +78,22 @@ void main() {
     await tester.tap(find.text('Saku Insight'));
     await tester.pumpAndSettle();
 
+    expect(find.text('Saku AI'), findsOneWidget);
     expect(find.text('Pertanyaan Cepat'), findsOneWidget);
     expect(find.text('Tanya AI...'), findsOneWidget);
 
     await tester.tap(find.text('Tips hemat buat aku dong'));
     await tester.pumpAndSettle();
-    expect(find.text('Pertanyaan dipilih: Tips hemat buat aku dong'),
-        findsOneWidget);
-    await tester.pump(const Duration(seconds: 4));
-    await tester.pumpAndSettle();
+    expect(find.text('Tips hemat buat aku dong'), findsWidgets);
+    expect(find.textContaining('Mulai dari aturan 3 langkah'), findsOneWidget);
 
     await tester.enterText(find.widgetWithText(TextField, 'Tanya AI...'),
         'Bulan ini boros dimana?');
     await tester.tap(find.byIcon(Icons.send_rounded));
     await tester.pumpAndSettle();
-    expect(find.text('Pertanyaan terkirim: Bulan ini boros dimana?'),
-        findsOneWidget);
-    await tester.pump(const Duration(seconds: 4));
-    await tester.pumpAndSettle();
+    expect(find.text('Bulan ini boros dimana?'), findsWidgets);
+    expect(
+        find.textContaining('pengeluaran yang paling terasa'), findsOneWidget);
 
     await tester.tap(find.byIcon(Icons.chevron_left_rounded).first);
     await tester.pumpAndSettle();

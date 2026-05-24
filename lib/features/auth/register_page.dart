@@ -5,7 +5,6 @@ import '../dashboard/dashboard_page.dart';
 import 'auth_actions.dart';
 import 'auth_scaffold.dart';
 import 'auth_text_field.dart';
-import 'google_auth_service.dart';
 import 'login_page.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -58,33 +57,15 @@ class _RegisterPageState extends State<RegisterPage> {
     Navigator.of(context).pushReplacementNamed(DashboardPage.routeName);
   }
 
-  Future<void> _continueWithGoogle() async {
-    try {
-      final account = await GoogleAuthService.instance.authenticate();
-      if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => DashboardPage(
-            userName: account.displayName ?? 'Pengguna Saku',
-            userEmail: account.email,
-          ),
+  void _continueWithGoogle() {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => const DashboardPage(
+          userName: 'Pengguna Google',
+          userEmail: 'google.demo@saku.app',
         ),
-      );
-    } on GoogleAuthSetupException catch (error) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.message)),
-      );
-    } catch (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Google Sign-In belum terkonfigurasi. Tambahkan OAuth Client ID aplikasi.',
-          ),
-        ),
-      );
-    }
+      ),
+    );
   }
 
   @override
