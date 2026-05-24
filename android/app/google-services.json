@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "578385408367",
+    "project_id": "pengeluaran-app-2466f",
+    "storage_bucket": "pengeluaran-app-2466f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:578385408367:android:b1acbcc9c56bcb8d5c389a",
+        "android_client_info": {
+          "package_name": "com.yahyanz.pengeluaran"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "578385408367-dqnmcb897vd9ll3d8ul9ui5uj4vgcjo9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.yahyanz.pengeluaran",
+            "certificate_hash": "5f3091d0a5af62c857c8f2c42b7346e1e7777fe3"
+          }
+        },
+        {
+          "client_id": "578385408367-lsjoev5oq7fiu11de0s871chps0ns35k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6GhZzv7Xk3TXLcfGOWYYFauM_mqbumos"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "578385408367-lsjoev5oq7fiu11de0s871chps0ns35k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

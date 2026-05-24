@@ -1,4 +1,4 @@
-package com.example.saku_pengeluaran
+package com.yahyanz.pengeluaran
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -1,4 +1,4 @@
-package com.example.saku_pengeluaran
+package com.yahyanz.pengeluaran
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
