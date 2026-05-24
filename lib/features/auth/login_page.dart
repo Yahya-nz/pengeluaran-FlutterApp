@@ -105,7 +105,7 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
         ),
-        const SizedBox(height: 150),
+        const SizedBox(height: 54),
         AuthPrimaryButton(
           label: 'Masuk',
           enabled: _canSubmit,

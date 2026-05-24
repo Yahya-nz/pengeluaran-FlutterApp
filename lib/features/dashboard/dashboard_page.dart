@@ -500,7 +500,7 @@ class _HomeDashboard extends StatelessWidget {
           decoration: const BoxDecoration(
             color: SakuColors.blue100,
             image: DecorationImage(
-              image: AssetImage('background beranda biru.png'),
+              image: AssetImage('assets/background beranda biru.png'),
               fit: BoxFit.cover,
               alignment: Alignment.topCenter,
             ),
@@ -4267,7 +4267,7 @@ class _ProfileHeader extends StatelessWidget {
       decoration: const BoxDecoration(
         color: SakuColors.blue100,
         image: DecorationImage(
-          image: AssetImage('background beranda biru.png'),
+          image: AssetImage('assets/background beranda biru.png'),
           fit: BoxFit.cover,
           opacity: 0.32,
         ),
@@ -4933,7 +4933,7 @@ class _HeroTools extends StatelessWidget {
             right: 2,
             bottom: -2,
             child: Image(
-              image: AssetImage('Maskot-dashboard.png'),
+              image: AssetImage('assets/Maskot-dashboard.png'),
               width: 156,
               height: 98,
               fit: BoxFit.contain,
@@ -5669,26 +5669,26 @@ IconData _categoryIcon(String category) {
 
 String? _categoryAsset(String category) {
   return switch (category) {
-    'Makanan' => 'icon/Property 1=makanan.png',
-    'Transportasi' => 'icon/Property 1=kendaraan.png',
-    'Rumah' => 'icon/Property 1=rumah.png',
-    'Kesehatan' => 'icon/Property 1=kesehatan.png',
-    'Belanja' => 'icon/Property 1=belanja.png',
-    'Kecantikan' => 'icon/Property 1=kecantikan.png',
-    'Hiburan' => 'icon/Property 1=hiburan.png',
-    'Pendidikan' => 'icon/Property 1=pendidikan.png',
-    'Olahraga' => 'icon/Property 1=olahraga.png',
-    'Darurat' => 'icon/Property 1=darurat.png',
-    'Sedekah' => 'icon/Property 1=sedekah.png',
-    'Lainnya' => 'icon/Property 1=lainnya.png',
-    'Gaji' => 'icon/Property 1=gaji.png',
-    'Freelance' => 'icon/Property 1=freelance.png',
-    'Bisnis' => 'icon/Property 1=bisnis.png',
-    'Hadiah' => 'icon/Property 1=hadiah.png',
-    'Penjualan' => 'icon/Property 1=penjualan.png',
-    'Investasi' => 'icon/Property 1=investasi.png',
-    'Sewa' => 'icon/Property 1=sewa.png',
-    'Uang Saku' => 'icon/Property 1=uangsaku.png',
+    'Makanan' => 'assets/icons/Property 1=makanan.png',
+    'Transportasi' => 'assets/icons/Property 1=kendaraan.png',
+    'Rumah' => 'assets/icons/Property 1=rumah.png',
+    'Kesehatan' => 'assets/icons/Property 1=kesehatan.png',
+    'Belanja' => 'assets/icons/Property 1=belanja.png',
+    'Kecantikan' => 'assets/icons/Property 1=kecantikan.png',
+    'Hiburan' => 'assets/icons/Property 1=hiburan.png',
+    'Pendidikan' => 'assets/icons/Property 1=pendidikan.png',
+    'Olahraga' => 'assets/icons/Property 1=olahraga.png',
+    'Darurat' => 'assets/icons/Property 1=darurat.png',
+    'Sedekah' => 'assets/icons/Property 1=sedekah.png',
+    'Lainnya' => 'assets/icons/Property 1=lainnya.png',
+    'Gaji' => 'assets/icons/Property 1=gaji.png',
+    'Freelance' => 'assets/icons/Property 1=freelance.png',
+    'Bisnis' => 'assets/icons/Property 1=bisnis.png',
+    'Hadiah' => 'assets/icons/Property 1=hadiah.png',
+    'Penjualan' => 'assets/icons/Property 1=penjualan.png',
+    'Investasi' => 'assets/icons/Property 1=investasi.png',
+    'Sewa' => 'assets/icons/Property 1=sewa.png',
+    'Uang Saku' => 'assets/icons/Property 1=uangsaku.png',
     _ => null,
   };
 }

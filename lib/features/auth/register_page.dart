@@ -132,7 +132,7 @@ class _RegisterPageState extends State<RegisterPage> {
             ],
           ),
         ),
-        const SizedBox(height: 64),
+        const SizedBox(height: 36),
         AuthPrimaryButton(
           label: 'Daftar',
           enabled: _canSubmit,

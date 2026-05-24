@@ -18,13 +18,13 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   final List<_OnboardingContent> _items = const [
     _OnboardingContent(
-      image: 'asset onbboarding 1.png',
+      image: 'assets/asset onboarding 1.png',
       title: 'Kelola Uangmu Lebih Cepat',
       description:
           'Catat setiap pemasukan dan pengeluaran harianmu dengan cepat dan mudah.',
     ),
     _OnboardingContent(
-      image: 'assets onboarding 2.png',
+      image: 'assets/asset onboarding 2.png',
       title: 'Pantau Saku Tanpa Ribet',
       description:
           'Lihat ringkasan keuangan, budget, dan kebiasaan belanjamu dalam satu tempat.',
