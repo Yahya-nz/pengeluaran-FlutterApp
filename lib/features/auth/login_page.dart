@@ -5,6 +5,7 @@ import '../dashboard/dashboard_page.dart';
 import 'auth_actions.dart';
 import 'auth_scaffold.dart';
 import 'auth_text_field.dart';
+import 'google_auth_service.dart';
 import 'register_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -52,10 +53,33 @@ class _LoginPageState extends State<LoginPage> {
     Navigator.of(context).pushReplacementNamed(DashboardPage.routeName);
   }
 
-  void _showComingSoon() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Login Google akan disambungkan nanti.')),
-    );
+  Future<void> _continueWithGoogle() async {
+    try {
+      final account = await GoogleAuthService.instance.authenticate();
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => DashboardPage(
+            userName: account.displayName ?? 'Pengguna Saku',
+            userEmail: account.email,
+          ),
+        ),
+      );
+    } on GoogleAuthSetupException catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.message)),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Google Sign-In belum terkonfigurasi. Tambahkan OAuth Client ID aplikasi.',
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -109,7 +133,7 @@ class _LoginPageState extends State<LoginPage> {
         const AuthDividerLabel(),
         GoogleAuthButton(
           label: 'Masuk dengan Google',
-          onPressed: _showComingSoon,
+          onPressed: _continueWithGoogle,
         ),
         const SizedBox(height: 28),
         Wrap(
