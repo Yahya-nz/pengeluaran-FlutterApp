@@ -810,6 +810,24 @@ class _InsightDashboardState extends State<_InsightDashboard> {
 
   String _buildDemoReply(String message) {
     final lower = message.toLowerCase();
+    if (_containsAny(lower, const ['budget', 'batas', 'limit'])) {
+      return 'Buka menu Budgeting, isi nominal, pilih kategori, lalu simpan. Untuk demo, budget akan tampil sebagai daftar limit agar user tahu sisa ruang belanjanya.';
+    }
+    if (_containsAny(lower, const ['grafik', 'laporan', 'kategori'])) {
+      return 'Di tab Grafik, user bisa melihat ringkasan pengeluaran per kategori. Cocok buat menjawab kategori mana yang paling sering menghabiskan saldo.';
+    }
+    if (_containsAny(lower, const ['widget', 'homescreen', 'home screen'])) {
+      return 'Widget homescreen menampilkan saldo, pengeluaran, dan catatan terbaru. Di Android, tambah dari Profil > Widget Homescreen atau dari daftar widget launcher.';
+    }
+    if (_containsAny(lower, const ['dompet', 'rekening', 'wallet'])) {
+      return 'Dompet dipakai untuk memisahkan sumber uang, misalnya BSI, Cash, atau e-wallet. Untuk demo, dompet baru bisa ditambahkan dari halaman Profil.';
+    }
+    if (_containsAny(lower, const ['hutang', 'pinjaman', 'lunas'])) {
+      return 'Catatan hutang dan pinjaman bisa dibuat dari tombol tambah. Detailnya bisa dibuka dari riwayat, lalu ditandai lunas saat sudah selesai.';
+    }
+    if (_containsAny(lower, const ['export', 'excel', 'pdf', 'unduh'])) {
+      return 'Untuk sementara export belum aktif. Nanti bisa ditambahkan sebagai tombol laporan bulanan ke PDF atau Excel setelah format laporan disepakati.';
+    }
     if (lower.contains('boros') || lower.contains('bulan')) {
       return 'Dari contoh data, pengeluaran yang paling terasa ada di Makanan dan Transportasi. Coba pasang limit mingguan kecil dulu, lalu cek ulang di tab Grafik.';
     }
@@ -820,6 +838,10 @@ class _InsightDashboardState extends State<_InsightDashboard> {
       return 'Untuk catatan cepat, pakai tombol tambah di tengah, pilih kategori, isi nominal, lalu simpan. Nanti ringkasannya ikut masuk ke widget homescreen Android.';
     }
     return 'Aku catat pertanyaanmu. Versi demo ini menjawab secara lokal dulu; nanti bisa disambungkan ke AI beneran kalau customer sudah siap pakai API.';
+  }
+
+  bool _containsAny(String text, List<String> keywords) {
+    return keywords.any(text.contains);
   }
 
   @override
@@ -3136,16 +3158,26 @@ class _QuickQuestionBubble extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          _QuestionPill('Catatan pembelian cepat', onTap: onQuestion),
-          const SizedBox(height: 8),
-          _QuestionPill('Tips hemat buat aku dong', onTap: onQuestion),
-          const SizedBox(height: 8),
-          _QuestionPill('Bulan ini boros dimana?', onTap: onQuestion),
+          for (final question in _quickQuestions) ...[
+            _QuestionPill(question, onTap: onQuestion),
+            if (question != _quickQuestions.last) const SizedBox(height: 8),
+          ],
         ],
       ),
     );
   }
 }
+
+const _quickQuestions = [
+  'Catatan pembelian cepat',
+  'Tips hemat buat aku dong',
+  'Bulan ini boros dimana?',
+  'Cara bikin budget?',
+  'Grafik itu buat apa?',
+  'Tambah dompet gimana?',
+  'Widget homescreen apa?',
+  'Hutang bisa ditandai lunas?',
+];
 
 class _QuestionPill extends StatelessWidget {
   const _QuestionPill(this.text, {required this.onTap});

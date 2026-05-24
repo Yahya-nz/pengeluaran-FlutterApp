@@ -81,11 +81,21 @@ void main() {
     expect(find.text('Saku AI'), findsOneWidget);
     expect(find.text('Pertanyaan Cepat'), findsOneWidget);
     expect(find.text('Tanya AI...'), findsOneWidget);
+    expect(find.text('Cara bikin budget?'), findsOneWidget);
+    expect(find.text('Widget homescreen apa?'), findsOneWidget);
 
     await tester.tap(find.text('Tips hemat buat aku dong'));
     await tester.pumpAndSettle();
     expect(find.text('Tips hemat buat aku dong'), findsWidgets);
     expect(find.textContaining('Mulai dari aturan 3 langkah'), findsOneWidget);
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Tanya AI...'),
+      'Cara bikin budget?',
+    );
+    await tester.tap(find.byIcon(Icons.send_rounded));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Buka menu Budgeting'), findsOneWidget);
 
     await tester.enterText(find.widgetWithText(TextField, 'Tanya AI...'),
         'Bulan ini boros dimana?');
