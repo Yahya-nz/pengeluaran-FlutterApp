@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:home_widget/home_widget.dart';
 
 import 'core/theme/app_theme.dart';
 import 'features/auth/login_page.dart';
@@ -21,8 +24,63 @@ void main() {
   runApp(const SakuApp());
 }
 
-class SakuApp extends StatelessWidget {
+class SakuApp extends StatefulWidget {
   const SakuApp({super.key});
+
+  @override
+  State<SakuApp> createState() => _SakuAppState();
+}
+
+class _SakuAppState extends State<SakuApp> {
+  final _navigatorKey = GlobalKey<NavigatorState>();
+  StreamSubscription<Uri?>? _widgetClickSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _listenForHomeWidgetLaunches();
+  }
+
+  @override
+  void dispose() {
+    _widgetClickSubscription?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _listenForHomeWidgetLaunches() async {
+    _widgetClickSubscription = HomeWidget.widgetClicked.listen(
+      _handleWidgetUri,
+      onError: (_) {},
+    );
+
+    try {
+      final uri = await HomeWidget.initiallyLaunchedFromHomeWidget();
+      _handleWidgetUri(uri);
+    } catch (_) {
+      // The home widget platform channel is only available on installed apps.
+    }
+  }
+
+  void _handleWidgetUri(Uri? uri) {
+    if (!_isAddNoteUri(uri)) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final navigator = _navigatorKey.currentState;
+      if (navigator == null) return;
+
+      navigator.pushAndRemoveUntil(
+        MaterialPageRoute<void>(
+          builder: (_) => const DashboardPage(openAddNote: true),
+        ),
+        (route) => false,
+      );
+    });
+  }
+
+  bool _isAddNoteUri(Uri? uri) {
+    if (uri == null) return false;
+    return uri.scheme == 'saku' && uri.host == 'add-note';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +93,7 @@ class SakuApp extends StatelessWidget {
       title: 'Saku',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
+      navigatorKey: _navigatorKey,
       initialRoute: initialRoute,
       routes: {
         OnboardingPage.routeName: (_) => const OnboardingPage(),

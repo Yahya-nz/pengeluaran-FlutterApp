@@ -12,11 +12,13 @@ class DashboardPage extends StatefulWidget {
     super.key,
     this.userName = 'Asadel',
     this.userEmail = 'adel123@gmail.com',
+    this.openAddNote = false,
   });
 
   static const routeName = '/home';
   final String userName;
   final String userEmail;
+  final bool openAddNote;
 
   @override
   State<DashboardPage> createState() => _DashboardPageState();
@@ -92,6 +94,9 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
+    if (widget.openAddNote) {
+      _surface = _DashboardSurface.addExpense;
+    }
     _syncHomeWidget();
   }
 
