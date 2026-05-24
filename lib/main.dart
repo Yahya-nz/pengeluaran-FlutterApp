@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:home_widget/home_widget.dart';
@@ -50,6 +51,8 @@ class _SakuAppState extends State<SakuApp> {
   }
 
   Future<void> _listenForHomeWidgetLaunches() async {
+    if (kIsWeb) return;
+
     _widgetClickSubscription = HomeWidget.widgetClicked.listen(
       _handleWidgetUri,
       onError: (_) {},
