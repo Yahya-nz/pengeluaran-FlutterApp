@@ -2,10 +2,19 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:home_widget/home_widget.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../auth/login_page.dart';
+import 'bloc/dashboard_cubit.dart';
+
+part 'widgets/dashboard_content.dart';
+
+typedef _DashboardSurface = DashboardSurface;
+typedef _AddNoteMode = AddNoteMode;
+typedef _TransactionItem = DashboardTransaction;
+typedef _BudgetItem = DashboardBudget;
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({
@@ -26,101 +35,6 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   static const _homeWidgetProvider = 'SakuSummaryWidgetProvider';
-  static const _initialBalance = 12045000;
-
-  int _currentIndex = 0;
-  _DashboardSurface _surface = _DashboardSurface.main;
-  _TransactionItem? _editingTransaction;
-  final List<_TransactionItem> _transactions = [
-    const _TransactionItem(
-      title: 'Makanan',
-      note: 'Beli jajan kopi sama temen',
-      amountValue: -30000,
-      time: '11:55 AM',
-      icon: Icons.restaurant_rounded,
-      color: SakuColors.danger,
-    ),
-    const _TransactionItem(
-      title: 'Hadiah',
-      note: 'THR dari bos',
-      amountValue: 30000,
-      time: '11:55 AM',
-      icon: Icons.card_giftcard_rounded,
-      color: SakuColors.success,
-    ),
-    const _TransactionItem(
-      title: 'Transportasi',
-      note: 'Bensin pulang kampus',
-      amountValue: -45000,
-      time: '09:20 AM',
-      icon: Icons.directions_car_rounded,
-      color: SakuColors.danger,
-    ),
-  ];
-
-  final List<_BudgetItem> _budgets = [
-    const _BudgetItem(
-      title: 'Transportasi',
-      amountValue: 200000,
-      remaining: 'sisa 50%',
-      progress: 0.5,
-      icon: Icons.directions_car_rounded,
-    ),
-    const _BudgetItem(
-      title: 'Belanja',
-      amountValue: 150000,
-      remaining: 'sisa 40%',
-      progress: 0.4,
-      icon: Icons.shopping_cart_rounded,
-    ),
-    const _BudgetItem(
-      title: 'Skincare',
-      amountValue: 300000,
-      remaining: 'sisa 35%',
-      progress: 0.35,
-      icon: Icons.spa_rounded,
-    ),
-  ];
-
-  int get _currentBalance => _transactions.fold<int>(
-        _initialBalance,
-        (balance, item) => balance + item.amountValue,
-      );
-
-  int get _currentExpense => _transactions
-      .where((item) => item.amountValue < 0)
-      .fold<int>(0, (sum, item) => sum + item.amountValue.abs());
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.openAddNote) {
-      _surface = _DashboardSurface.addExpense;
-    }
-    _syncHomeWidget();
-  }
-
-  Future<void> _syncHomeWidget() async {
-    try {
-      await HomeWidget.saveWidgetData<String>(
-        'balance',
-        'Rp ${_formatPlain(_currentBalance)}',
-      );
-      await HomeWidget.saveWidgetData<String>(
-        'expense',
-        'Rp ${_formatPlain(_currentExpense)}',
-      );
-      await HomeWidget.saveWidgetData<String>(
-        'latest',
-        _transactions.isEmpty
-            ? 'Belum ada catatan'
-            : '${_transactions.first.title} ${_transactions.first.amount}',
-      );
-      await HomeWidget.updateWidget(name: _homeWidgetProvider);
-    } catch (_) {
-      // Platform channel is not available on web and widget tests.
-    }
-  }
 
   Future<void> _requestHomeWidget() async {
     if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
@@ -133,8 +47,8 @@ class _DashboardPageState extends State<DashboardPage> {
       return;
     }
 
-    await _syncHomeWidget();
     try {
+      await HomeWidget.updateWidget(name: _homeWidgetProvider);
       final supported = await HomeWidget.isRequestPinWidgetSupported() ?? false;
       if (supported) {
         await HomeWidget.requestPinWidget(name: _homeWidgetProvider);
@@ -163,275 +77,106 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
-  void _addTransaction(_TransactionItem item) {
-    setState(() {
-      _transactions.insert(0, item);
-      _surface = _DashboardSurface.main;
-      _currentIndex = 1;
-    });
-    _syncHomeWidget();
-  }
-
-  void _addBudget(_BudgetItem item) {
-    setState(() {
-      _budgets.insert(0, item);
-    });
-  }
-
-  void _deleteTransaction(_TransactionItem item) {
-    setState(() => _transactions.remove(item));
-    _syncHomeWidget();
-  }
-
-  void _markTransactionSettled(_TransactionItem item) {
-    final index = _transactions.indexOf(item);
-    if (index == -1) return;
-    setState(() {
-      _transactions[index] = item.copyWith(settled: true);
-    });
-    _syncHomeWidget();
-  }
-
-  void _openEditTransaction(_TransactionItem item) {
-    setState(() {
-      _editingTransaction = item;
-      _surface = _DashboardSurface.editTransaction;
-    });
-  }
-
-  void _updateTransaction(_TransactionItem oldItem, _TransactionItem newItem) {
-    final index = _transactions.indexOf(oldItem);
-    if (index == -1) return;
-    setState(() {
-      _transactions[index] = newItem;
-      _editingTransaction = null;
-      _surface = _DashboardSurface.main;
-      _currentIndex = 1;
-    });
-    _syncHomeWidget();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: SakuColors.neutral50,
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final pageWidth =
-                constraints.maxWidth > 430 ? 430.0 : constraints.maxWidth;
+    return BlocProvider(
+      create: (_) =>
+          DashboardCubit(openAddNote: widget.openAddNote)..syncHomeWidget(),
+      child: BlocBuilder<DashboardCubit, DashboardState>(
+        builder: (context, state) {
+          final cubit = context.read<DashboardCubit>();
+          return Scaffold(
+            backgroundColor: SakuColors.neutral50,
+            body: SafeArea(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final pageWidth =
+                      constraints.maxWidth > 430 ? 430.0 : constraints.maxWidth;
 
-            return Center(
-              child: SizedBox(
-                width: pageWidth,
-                height: constraints.maxHeight,
-                child: switch (_surface) {
-                  _DashboardSurface.budget => _BudgetDashboard(
-                      budgets: _budgets,
-                      onBack: () {
-                        setState(() => _surface = _DashboardSurface.main);
-                      },
-                    ),
-                  _DashboardSurface.insight => _InsightDashboard(
-                      onBack: () {
-                        setState(() => _surface = _DashboardSurface.main);
-                      },
-                    ),
-                  _DashboardSurface.notifications => _NotificationsDashboard(
-                      onBack: () {
-                        setState(() => _surface = _DashboardSurface.main);
-                      },
-                    ),
-                  _DashboardSurface.addExpense => _AddNoteDashboard(
-                      mode: _AddNoteMode.expense,
-                      onBack: () {
-                        setState(() => _surface = _DashboardSurface.main);
-                      },
-                      onSwitchMode: (mode) {
-                        setState(() => _surface = _surfaceForMode(mode));
-                      },
-                      onSave: _addTransaction,
-                    ),
-                  _DashboardSurface.addIncome => _AddNoteDashboard(
-                      mode: _AddNoteMode.income,
-                      onBack: () {
-                        setState(() => _surface = _DashboardSurface.main);
-                      },
-                      onSwitchMode: (mode) {
-                        setState(() => _surface = _surfaceForMode(mode));
-                      },
-                      onSave: _addTransaction,
-                    ),
-                  _DashboardSurface.addDebt => _AddNoteDashboard(
-                      mode: _AddNoteMode.debt,
-                      onBack: () {
-                        setState(() => _surface = _DashboardSurface.main);
-                      },
-                      onSwitchMode: (mode) {
-                        setState(() => _surface = _surfaceForMode(mode));
-                      },
-                      onSave: _addTransaction,
-                    ),
-                  _DashboardSurface.addLoan => _AddNoteDashboard(
-                      mode: _AddNoteMode.loan,
-                      onBack: () {
-                        setState(() => _surface = _DashboardSurface.main);
-                      },
-                      onSwitchMode: (mode) {
-                        setState(() => _surface = _surfaceForMode(mode));
-                      },
-                      onSave: _addTransaction,
-                    ),
-                  _DashboardSurface.editTransaction =>
-                    _EditTransactionDashboard(
-                      item: _editingTransaction,
-                      onBack: () {
-                        setState(() {
-                          _editingTransaction = null;
-                          _surface = _DashboardSurface.main;
-                        });
-                      },
-                      onSave: _updateTransaction,
-                    ),
-                  _DashboardSurface.main => switch (_currentIndex) {
-                      0 => _HomeDashboard(
-                          userName: widget.userName,
-                          transactions: _transactions,
-                          onOpenHistory: () {
-                            setState(() => _currentIndex = 1);
-                          },
-                          onOpenBudget: () {
-                            setState(
-                              () => _surface = _DashboardSurface.budget,
-                            );
-                          },
-                          onOpenInsight: () {
-                            setState(
-                              () => _surface = _DashboardSurface.insight,
-                            );
-                          },
-                        ),
-                      1 => _HistoryDashboard(
-                          transactions: _transactions,
-                          onDelete: _deleteTransaction,
-                          onEdit: _openEditTransaction,
-                          onMarkSettled: _markTransactionSettled,
-                        ),
-                      2 => _ChartDashboard(transactions: _transactions),
-                      _ => _ProfileDashboard(
-                          initialName: widget.userName,
-                          initialEmail: widget.userEmail,
-                          onOpenNotifications: () {
-                            setState(
-                              () => _surface = _DashboardSurface.notifications,
-                            );
-                          },
-                          onAddHomeWidget: _requestHomeWidget,
-                        ),
-                    },
-                },
-              ),
-            );
-          },
-        ),
-      ),
-      floatingActionButton: _surface == _DashboardSurface.insight ||
-              _surface == _DashboardSurface.notifications ||
-              _surface == _DashboardSurface.addExpense ||
-              _surface == _DashboardSurface.addIncome ||
-              _surface == _DashboardSurface.addDebt ||
-              _surface == _DashboardSurface.addLoan ||
-              _surface == _DashboardSurface.editTransaction
-          ? null
-          : FloatingActionButton(
-              onPressed: () {
-                if (_surface == _DashboardSurface.budget) {
-                  showDialog<void>(
-                    context: context,
-                    builder: (context) => _BudgetFormDialog(
-                      onSave: (item) {
-                        _addBudget(item);
-                        Navigator.of(context).pop();
-                      },
+                  return Center(
+                    child: SizedBox(
+                      width: pageWidth,
+                      height: constraints.maxHeight,
+                      child: _DashboardContent(
+                        state: state,
+                        userName: widget.userName,
+                        userEmail: widget.userEmail,
+                        onRequestHomeWidget: _requestHomeWidget,
+                      ),
                     ),
                   );
-                  return;
-                }
-                setState(() => _surface = _DashboardSurface.addExpense);
-              },
-              backgroundColor: SakuColors.mango500,
-              foregroundColor: SakuColors.white,
-              shape: const CircleBorder(),
-              child: const Icon(Icons.add_rounded, size: 34),
-            ),
-      floatingActionButtonLocation: _surface == _DashboardSurface.main
-          ? FloatingActionButtonLocation.centerDocked
-          : FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: _surface == _DashboardSurface.main
-          ? Container(
-              color: Theme.of(context).colorScheme.surfaceContainer,
-              child: Center(
-                heightFactor: 1,
-                child: SizedBox(
-                  width: 430,
-                  child: NavigationBar(
-                    selectedIndex: _currentIndex,
-                    onDestinationSelected: (index) {
-                      setState(() => _currentIndex = index);
-                    },
-                    indicatorColor: SakuColors.blue100,
-                    destinations: const [
-                      NavigationDestination(
-                        icon: Icon(Icons.home_outlined),
-                        selectedIcon: Icon(Icons.home_rounded),
-                        label: 'Beranda',
-                      ),
-                      NavigationDestination(
-                        icon: Icon(Icons.receipt_long_outlined),
-                        selectedIcon: Icon(Icons.receipt_long_rounded),
-                        label: 'Riwayat',
-                      ),
-                      NavigationDestination(
-                        icon: Icon(Icons.pie_chart_outline_rounded),
-                        selectedIcon: Icon(Icons.pie_chart_rounded),
-                        label: 'Grafik',
-                      ),
-                      NavigationDestination(
-                        icon: Icon(Icons.person_outline_rounded),
-                        selectedIcon: Icon(Icons.person_rounded),
-                        label: 'Profil',
-                      ),
-                    ],
-                  ),
-                ),
+                },
               ),
-            )
-          : null,
+            ),
+            floatingActionButton: state.hidesFloatingActionButton
+                ? null
+                : FloatingActionButton(
+                    onPressed: () {
+                      if (state.surface == _DashboardSurface.budget) {
+                        showDialog<void>(
+                          context: context,
+                          builder: (context) => _BudgetFormDialog(
+                            onSave: (item) {
+                              cubit.addBudget(item);
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        );
+                        return;
+                      }
+                      cubit.showAddNote();
+                    },
+                    backgroundColor: SakuColors.mango500,
+                    foregroundColor: SakuColors.white,
+                    shape: const CircleBorder(),
+                    child: const Icon(Icons.add_rounded, size: 34),
+                  ),
+            floatingActionButtonLocation: state.showBottomNavigation
+                ? FloatingActionButtonLocation.centerDocked
+                : FloatingActionButtonLocation.endFloat,
+            bottomNavigationBar: state.showBottomNavigation
+                ? Container(
+                    color: Theme.of(context).colorScheme.surfaceContainer,
+                    child: Center(
+                      heightFactor: 1,
+                      child: SizedBox(
+                        width: 430,
+                        child: NavigationBar(
+                          selectedIndex: state.currentIndex,
+                          onDestinationSelected: cubit.selectTab,
+                          indicatorColor: SakuColors.blue100,
+                          destinations: const [
+                            NavigationDestination(
+                              icon: Icon(Icons.home_outlined),
+                              selectedIcon: Icon(Icons.home_rounded),
+                              label: 'Beranda',
+                            ),
+                            NavigationDestination(
+                              icon: Icon(Icons.receipt_long_outlined),
+                              selectedIcon: Icon(Icons.receipt_long_rounded),
+                              label: 'Riwayat',
+                            ),
+                            NavigationDestination(
+                              icon: Icon(Icons.pie_chart_outline_rounded),
+                              selectedIcon: Icon(Icons.pie_chart_rounded),
+                              label: 'Grafik',
+                            ),
+                            NavigationDestination(
+                              icon: Icon(Icons.person_outline_rounded),
+                              selectedIcon: Icon(Icons.person_rounded),
+                              label: 'Profil',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                : null,
+          );
+        },
+      ),
     );
   }
-}
-
-enum _DashboardSurface {
-  main,
-  budget,
-  insight,
-  notifications,
-  addExpense,
-  addIncome,
-  addDebt,
-  addLoan,
-  editTransaction
-}
-
-enum _AddNoteMode { expense, income, debt, loan }
-
-_DashboardSurface _surfaceForMode(_AddNoteMode mode) {
-  return switch (mode) {
-    _AddNoteMode.expense => _DashboardSurface.addExpense,
-    _AddNoteMode.income => _DashboardSurface.addIncome,
-    _AddNoteMode.debt => _DashboardSurface.addDebt,
-    _AddNoteMode.loan => _DashboardSurface.addLoan,
-  };
 }
 
 class _ChildPageTopBar extends StatelessWidget {
@@ -5445,22 +5190,6 @@ class _ChartCategory {
   final Color color;
 }
 
-class _BudgetItem {
-  const _BudgetItem({
-    required this.title,
-    required this.amountValue,
-    required this.remaining,
-    required this.progress,
-    required this.icon,
-  });
-
-  final String title;
-  final int amountValue;
-  final String remaining;
-  final double progress;
-  final IconData icon;
-}
-
 class _NotificationItem {
   const _NotificationItem({
     required this.title,
@@ -5523,51 +5252,6 @@ class _DonutChartPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _DonutChartPainter oldDelegate) {
     return oldDelegate.categories != categories;
-  }
-}
-
-class _TransactionItem {
-  const _TransactionItem({
-    required this.title,
-    required this.note,
-    required this.amountValue,
-    required this.time,
-    required this.icon,
-    required this.color,
-    this.settled = false,
-  });
-
-  final String title;
-  final String note;
-  final int amountValue;
-  final String time;
-  final IconData icon;
-  final Color color;
-  final bool settled;
-
-  String get amount {
-    final sign = amountValue < 0 ? '-' : '+';
-    return '$sign ${_formatPlain(amountValue.abs())}';
-  }
-
-  _TransactionItem copyWith({
-    String? title,
-    String? note,
-    int? amountValue,
-    String? time,
-    IconData? icon,
-    Color? color,
-    bool? settled,
-  }) {
-    return _TransactionItem(
-      title: title ?? this.title,
-      note: note ?? this.note,
-      amountValue: amountValue ?? this.amountValue,
-      time: time ?? this.time,
-      icon: icon ?? this.icon,
-      color: color ?? this.color,
-      settled: settled ?? this.settled,
-    );
   }
 }
 
