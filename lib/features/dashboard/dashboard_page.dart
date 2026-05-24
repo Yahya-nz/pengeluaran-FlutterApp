@@ -1196,7 +1196,6 @@ class _ProfileDashboardState extends State<_ProfileDashboard> {
   late String _profileEmail;
   bool _passwordChanged = false;
   bool _photoUpdated = false;
-  _ProfileEditField? _editingField;
   final List<_WalletItem> _wallets = [
     const _WalletItem(name: 'BSI', balance: 12000000),
   ];
@@ -1214,6 +1213,29 @@ class _ProfileDashboardState extends State<_ProfileDashboard> {
       builder: (context) => _WalletFormDialog(
         onSave: (wallet) {
           setState(() => _wallets.add(wallet));
+          Navigator.of(context).pop();
+        },
+      ),
+    );
+  }
+
+  void _openProfileEditDialog(_ProfileEditField field) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => _ProfileEditDialog(
+        field: field,
+        currentName: _profileName,
+        currentEmail: _profileEmail,
+        onSaveName: (value) {
+          setState(() => _profileName = value);
+          Navigator.of(context).pop();
+        },
+        onSaveEmail: (value) {
+          setState(() => _profileEmail = value);
+          Navigator.of(context).pop();
+        },
+        onSavePassword: () {
+          setState(() => _passwordChanged = true);
           Navigator.of(context).pop();
         },
       ),
@@ -1239,34 +1261,6 @@ class _ProfileDashboardState extends State<_ProfileDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    final editingField = _editingField;
-    if (editingField != null) {
-      return _ProfileEditDashboard(
-        field: editingField,
-        currentName: _profileName,
-        currentEmail: _profileEmail,
-        onBack: () => setState(() => _editingField = null),
-        onSaveName: (value) {
-          setState(() {
-            _profileName = value;
-            _editingField = null;
-          });
-        },
-        onSaveEmail: (value) {
-          setState(() {
-            _profileEmail = value;
-            _editingField = null;
-          });
-        },
-        onSavePassword: () {
-          setState(() {
-            _passwordChanged = true;
-            _editingField = null;
-          });
-        },
-      );
-    }
-
     return ListView(
       padding: const EdgeInsets.only(bottom: 96),
       children: [
@@ -1301,27 +1295,21 @@ class _ProfileDashboardState extends State<_ProfileDashboard> {
                 icon: Icons.person_rounded,
                 title: 'Nama',
                 subtitle: _profileName,
-                onTap: () {
-                  setState(() => _editingField = _ProfileEditField.name);
-                },
+                onTap: () => _openProfileEditDialog(_ProfileEditField.name),
               ),
               const SizedBox(height: 12),
               _ProfileMenuTile(
                 icon: Icons.mail_rounded,
                 title: 'Email',
                 subtitle: _profileEmail,
-                onTap: () {
-                  setState(() => _editingField = _ProfileEditField.email);
-                },
+                onTap: () => _openProfileEditDialog(_ProfileEditField.email),
               ),
               const SizedBox(height: 12),
               _ProfileMenuTile(
                 icon: Icons.lock_rounded,
                 title: 'Password',
                 subtitle: _passwordChanged ? 'Sudah diperbarui' : '********',
-                onTap: () {
-                  setState(() => _editingField = _ProfileEditField.password);
-                },
+                onTap: () => _openProfileEditDialog(_ProfileEditField.password),
               ),
               const SizedBox(height: 24),
               const _ProfileSectionTitle('Pengaturan'),
@@ -1357,12 +1345,11 @@ class _ProfileDashboardState extends State<_ProfileDashboard> {
 
 enum _ProfileEditField { name, email, password }
 
-class _ProfileEditDashboard extends StatefulWidget {
-  const _ProfileEditDashboard({
+class _ProfileEditDialog extends StatefulWidget {
+  const _ProfileEditDialog({
     required this.field,
     required this.currentName,
     required this.currentEmail,
-    required this.onBack,
     required this.onSaveName,
     required this.onSaveEmail,
     required this.onSavePassword,
@@ -1371,16 +1358,15 @@ class _ProfileEditDashboard extends StatefulWidget {
   final _ProfileEditField field;
   final String currentName;
   final String currentEmail;
-  final VoidCallback onBack;
   final ValueChanged<String> onSaveName;
   final ValueChanged<String> onSaveEmail;
   final VoidCallback onSavePassword;
 
   @override
-  State<_ProfileEditDashboard> createState() => _ProfileEditDashboardState();
+  State<_ProfileEditDialog> createState() => _ProfileEditDialogState();
 }
 
-class _ProfileEditDashboardState extends State<_ProfileEditDashboard> {
+class _ProfileEditDialogState extends State<_ProfileEditDialog> {
   late final TextEditingController _primaryController;
   late final TextEditingController _passwordController;
   late final TextEditingController _confirmPasswordController;
@@ -1422,11 +1408,10 @@ class _ProfileEditDashboardState extends State<_ProfileEditDashboard> {
   void _save() {
     if (_isPassword) {
       final password = _passwordController.text.trim();
-      final confirmPassword = _confirmPasswordController.text.trim();
-      if (password.length < 6 || password != confirmPassword) {
+      if (password.length < 6) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Password minimal 6 karakter dan harus sama'),
+            content: Text('Password baru minimal 6 karakter'),
           ),
         );
         return;
@@ -1459,124 +1444,154 @@ class _ProfileEditDashboardState extends State<_ProfileEditDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _ChildPageTopBar(title: _title, onBack: widget.onBack),
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(32, 28, 32, 24),
-            children: [
-              if (!_isPassword)
-                TextField(
-                  controller: _primaryController,
-                  keyboardType: _isEmail
-                      ? TextInputType.emailAddress
-                      : TextInputType.text,
-                  decoration: InputDecoration(
-                    labelText: _isEmail ? 'Email' : 'Nama',
-                    prefixIcon: Icon(
-                      _isEmail ? Icons.mail_rounded : Icons.person_rounded,
+    return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+      backgroundColor: SakuColors.white,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 28, 24, 26),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              _title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: SakuColors.black,
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 22),
+            if (!_isPassword)
+              _ProfileEditFieldInput(
+                label: _isEmail ? 'Email' : 'Nama',
+                controller: _primaryController,
+                keyboardType:
+                    _isEmail ? TextInputType.emailAddress : TextInputType.text,
+                icon: _isEmail ? Icons.mail_rounded : Icons.person_rounded,
+              )
+            else ...[
+              _ProfileEditFieldInput(
+                label: 'Password lama',
+                controller: _primaryController,
+                obscureText: true,
+                icon: Icons.edit_rounded,
+                hintText: 'Masukkan password lama',
+              ),
+              const SizedBox(height: 14),
+              _ProfileEditFieldInput(
+                label: 'Password baru',
+                controller: _passwordController,
+                obscureText: true,
+                icon: Icons.edit_rounded,
+                hintText: 'Masukkan password baru',
+              ),
+            ],
+            const SizedBox(height: 34),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: SakuColors.mango500,
+                      side: const BorderSide(
+                        color: SakuColors.mango500,
+                        width: 2,
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
                     ),
-                    filled: true,
-                    fillColor: SakuColors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                  ),
-                )
-              else ...[
-                TextField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: 'Password baru',
-                    prefixIcon: const Icon(Icons.lock_rounded),
-                    filled: true,
-                    fillColor: SakuColors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24),
+                    child: const Text(
+                      'Batal',
+                      style: TextStyle(fontWeight: FontWeight.w900),
                     ),
                   ),
                 ),
-                const SizedBox(height: 14),
-                TextField(
-                  controller: _confirmPasswordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: 'Ulangi password',
-                    prefixIcon: const Icon(Icons.lock_reset_rounded),
-                    filled: true,
-                    fillColor: SakuColors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: _save,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: SakuColors.blue300,
+                      foregroundColor: SakuColors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                    ),
+                    child: const Text(
+                      'Simpan',
+                      style: TextStyle(fontWeight: FontWeight.w900),
                     ),
                   ),
                 ),
               ],
-              const SizedBox(height: 18),
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: SakuColors.blue50,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: SakuColors.blue100),
-                ),
-                child: Text(
-                  _isPassword
-                      ? 'Perubahan password disimpan lokal untuk demo. Nanti dapat disambungkan ke autentikasi.'
-                      : 'Perubahan ini langsung terlihat di halaman Profil selama aplikasi belum di-refresh.',
-                  style: const TextStyle(
-                    color: SakuColors.neutral600,
-                    height: 1.35,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfileEditFieldInput extends StatelessWidget {
+  const _ProfileEditFieldInput({
+    required this.label,
+    required this.controller,
+    required this.icon,
+    this.keyboardType,
+    this.obscureText = false,
+    this.hintText,
+  });
+
+  final String label;
+  final TextEditingController controller;
+  final IconData icon;
+  final TextInputType? keyboardType;
+  final bool obscureText;
+  final String? hintText;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            color: SakuColors.black,
+            fontWeight: FontWeight.w800,
           ),
         ),
-        Container(
-          color: SakuColors.white,
-          padding: const EdgeInsets.fromLTRB(32, 14, 32, 18),
-          child: Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: widget.onBack,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: SakuColors.mango500,
-                    side:
-                        const BorderSide(color: SakuColors.mango500, width: 2),
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                  ),
-                  child: const Text(
-                    'Batal',
-                    style: TextStyle(fontWeight: FontWeight.w900),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: FilledButton(
-                  onPressed: _save,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: SakuColors.blue300,
-                    foregroundColor: SakuColors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                  ),
-                  child: const Text(
-                    'Simpan',
-                    style: TextStyle(fontWeight: FontWeight.w900),
-                  ),
-                ),
-              ),
-            ],
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          keyboardType: keyboardType,
+          obscureText: obscureText,
+          decoration: InputDecoration(
+            hintText: hintText,
+            suffixIcon: Icon(icon, color: SakuColors.black),
+            filled: true,
+            fillColor: SakuColors.white,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 18,
+              vertical: 15,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(24),
+              borderSide: const BorderSide(color: SakuColors.neutral300),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(24),
+              borderSide: const BorderSide(color: SakuColors.blue300),
+            ),
           ),
         ),
       ],
@@ -4321,6 +4336,7 @@ class _WalletFormDialog extends StatefulWidget {
 class _WalletFormDialogState extends State<_WalletFormDialog> {
   final _nameController = TextEditingController();
   final _balanceController = TextEditingController();
+  bool _isPrimary = false;
 
   @override
   void dispose() {
@@ -4344,57 +4360,164 @@ class _WalletFormDialogState extends State<_WalletFormDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 20),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 10),
+      alignment: Alignment.bottomCenter,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
       backgroundColor: SakuColors.white,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 26, 20, 22),
+        padding: const EdgeInsets.fromLTRB(22, 38, 22, 38),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              'Tambah Dompet',
+              'Buat Dompet baru',
               style: TextStyle(
                 color: SakuColors.black,
-                fontSize: 22,
+                fontSize: 21,
                 fontWeight: FontWeight.w900,
               ),
             ),
-            const SizedBox(height: 18),
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Nama dompet',
-                prefixIcon: Icon(Icons.account_balance_wallet_rounded),
+            const SizedBox(height: 26),
+            Row(
+              children: [
+                Expanded(
+                  child: _WalletDialogField(
+                    label: 'Nama Dompet',
+                    child: TextField(
+                      controller: _nameController,
+                      decoration: _walletInputDecoration('Nama dompet'),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 26),
+                Expanded(
+                  child: _WalletDialogField(
+                    label: 'Pilih Icon',
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(28),
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content:
+                                Text('Pilihan icon tersedia di versi demo'),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        height: 55,
+                        decoration: BoxDecoration(
+                          color: SakuColors.white,
+                          borderRadius: BorderRadius.circular(28),
+                          border: Border.all(color: SakuColors.neutral300),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.account_balance_wallet_rounded,
+                              color: SakuColors.mango500,
+                            ),
+                            SizedBox(width: 20),
+                            Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              color: SakuColors.black,
+                              size: 30,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 26),
+            _WalletDialogField(
+              label: 'Saldo Awal',
+              child: TextField(
+                controller: _balanceController,
+                keyboardType: TextInputType.number,
+                decoration: _walletInputDecoration('Masukkan saldo awal..'),
               ),
             ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _balanceController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: 'Saldo awal',
-                prefixIcon: Icon(Icons.payments_outlined),
+            const SizedBox(height: 20),
+            InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () => setState(() => _isPrimary = !_isPrimary),
+              child: Row(
+                children: [
+                  Checkbox(
+                    value: _isPrimary,
+                    onChanged: (value) {
+                      setState(() => _isPrimary = value ?? false);
+                    },
+                    shape: const CircleBorder(),
+                    side: const BorderSide(color: SakuColors.neutral300),
+                    activeColor: SakuColors.blue300,
+                  ),
+                  const SizedBox(width: 4),
+                  const Expanded(
+                    child: Text(
+                      'Jadikan Dompet Utama',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: SakuColors.neutral300,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 46),
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Batal'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: SakuColors.mango500,
+                      side: const BorderSide(
+                        color: SakuColors.mango500,
+                        width: 2.4,
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                    ),
+                    child: const Text(
+                      'Batal',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 26),
                 Expanded(
                   child: FilledButton(
                     onPressed: _save,
                     style: FilledButton.styleFrom(
                       backgroundColor: SakuColors.blue300,
                       foregroundColor: SakuColors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 17),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(28),
+                      ),
                     ),
-                    child: const Text('Simpan'),
+                    child: const Text(
+                      'Simpan',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -4404,6 +4527,56 @@ class _WalletFormDialogState extends State<_WalletFormDialog> {
       ),
     );
   }
+}
+
+class _WalletDialogField extends StatelessWidget {
+  const _WalletDialogField({
+    required this.label,
+    required this.child,
+  });
+
+  final String label;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            color: SakuColors.black,
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 8),
+        child,
+      ],
+    );
+  }
+}
+
+InputDecoration _walletInputDecoration(String hintText) {
+  return InputDecoration(
+    hintText: hintText,
+    filled: true,
+    fillColor: SakuColors.white,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(28),
+      borderSide: const BorderSide(color: SakuColors.neutral300),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(28),
+      borderSide: const BorderSide(color: SakuColors.neutral300),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(28),
+      borderSide: const BorderSide(color: SakuColors.blue300),
+    ),
+  );
 }
 
 class _NotificationTile extends StatelessWidget {

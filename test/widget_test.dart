@@ -241,7 +241,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Edit Nama'), findsOneWidget);
-    await tester.enterText(find.widgetWithText(TextField, 'Nama'), 'Yahya');
+    await tester.enterText(find.byType(TextField).last, 'Yahya');
     await tester.tap(find.text('Simpan'));
     await tester.pumpAndSettle();
     expect(find.text('Yahya'), findsWidgets);
@@ -249,10 +249,7 @@ void main() {
     await tester.tap(find.text('Email'));
     await tester.pumpAndSettle();
     expect(find.text('Edit Email'), findsOneWidget);
-    await tester.enterText(
-      find.widgetWithText(TextField, 'Email'),
-      'yahya@saku.test',
-    );
+    await tester.enterText(find.byType(TextField).last, 'yahya@saku.test');
     await tester.tap(find.text('Simpan'));
     await tester.pumpAndSettle();
     expect(find.text('yahya@saku.test'), findsOneWidget);
@@ -261,11 +258,11 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Ganti Password'), findsOneWidget);
     await tester.enterText(
-      find.widgetWithText(TextField, 'Password baru'),
-      'secret123',
+      find.widgetWithText(TextField, 'Masukkan password lama'),
+      'oldsecret',
     );
     await tester.enterText(
-      find.widgetWithText(TextField, 'Ulangi password'),
+      find.widgetWithText(TextField, 'Masukkan password baru'),
       'secret123',
     );
     await tester.tap(find.text('Simpan'));
@@ -282,13 +279,13 @@ void main() {
     await tester.tap(find.text('Tambah dompet baru'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Tambah Dompet'), findsOneWidget);
+    expect(find.text('Buat Dompet baru'), findsOneWidget);
     await tester.enterText(
       find.widgetWithText(TextField, 'Nama dompet'),
       'Cash',
     );
     await tester.enterText(
-      find.widgetWithText(TextField, 'Saldo awal'),
+      find.widgetWithText(TextField, 'Masukkan saldo awal..'),
       '25000',
     );
     await tester.tap(find.text('Simpan'));
