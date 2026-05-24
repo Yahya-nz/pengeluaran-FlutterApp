@@ -496,54 +496,25 @@ class _HomeDashboard extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 96),
       children: [
         Container(
-          padding: const EdgeInsets.fromLTRB(22, 22, 22, 28),
+          padding: const EdgeInsets.fromLTRB(22, 22, 22, 30),
           decoration: const BoxDecoration(
             color: SakuColors.blue100,
             image: DecorationImage(
               image: AssetImage('assets/background beranda biru.png'),
-              fit: BoxFit.cover,
-              alignment: Alignment.topCenter,
+              repeat: ImageRepeat.repeat,
+              alignment: Alignment.topLeft,
             ),
           ),
           child: Column(
             children: [
-              Row(
-                children: [
-                  const CircleAvatar(
-                    radius: 26,
-                    backgroundColor: SakuColors.blue50,
-                    child: Icon(
-                      Icons.person_rounded,
-                      color: SakuColors.blue700,
-                      size: 32,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Text(
-                      'Hei, $userName!',
-                      style: const TextStyle(
-                        color: SakuColors.white,
-                        fontSize: 31,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      Navigator.of(context)
-                          .pushReplacementNamed(LoginPage.routeName);
-                    },
-                    style: IconButton.styleFrom(
-                      backgroundColor: SakuColors.white.withValues(alpha: 0.2),
-                      foregroundColor: SakuColors.white,
-                    ),
-                    icon: const Icon(Icons.logout_rounded),
-                  ),
-                ],
+              _BalanceCard(
+                userName: userName,
+                onLogout: () {
+                  Navigator.of(context).pushReplacementNamed(
+                    LoginPage.routeName,
+                  );
+                },
               ),
-              const SizedBox(height: 22),
-              const _BalanceCard(),
               const SizedBox(height: 20),
               _HeroTools(
                 onOpenBudget: onOpenBudget,
@@ -4736,7 +4707,13 @@ class _NotificationTile extends StatelessWidget {
 }
 
 class _BalanceCard extends StatelessWidget {
-  const _BalanceCard();
+  const _BalanceCard({
+    required this.userName,
+    required this.onLogout,
+  });
+
+  final String userName;
+  final VoidCallback onLogout;
 
   @override
   Widget build(BuildContext context) {
@@ -4755,6 +4732,41 @@ class _BalanceCard extends StatelessWidget {
       ),
       child: Column(
         children: [
+          Row(
+            children: [
+              const CircleAvatar(
+                radius: 28,
+                backgroundColor: SakuColors.blue50,
+                child: Icon(
+                  Icons.person_rounded,
+                  color: SakuColors.blue700,
+                  size: 34,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  'Hei, $userName!',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: SakuColors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+              IconButton(
+                onPressed: onLogout,
+                style: IconButton.styleFrom(
+                  backgroundColor: SakuColors.white.withValues(alpha: 0.18),
+                  foregroundColor: SakuColors.white,
+                ),
+                icon: const Icon(Icons.logout_rounded),
+              ),
+            ],
+          ),
+          const SizedBox(height: 30),
           const Row(
             children: [
               Expanded(
