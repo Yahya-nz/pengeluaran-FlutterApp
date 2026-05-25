@@ -57,7 +57,7 @@ class _HomeHeroSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 548,
+      height: 565,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -65,7 +65,7 @@ class _HomeHeroSection extends StatelessWidget {
             left: 0,
             top: 0,
             right: 0,
-            height: 438,
+            height: 506,
             child: DecoratedBox(
               decoration: BoxDecoration(
                 color: SakuColors.blue100,
@@ -80,7 +80,7 @@ class _HomeHeroSection extends StatelessWidget {
           const Positioned(
             left: 0,
             right: 0,
-            top: 384,
+            top: 454,
             bottom: 0,
             child: DecoratedBox(
               decoration: BoxDecoration(
@@ -103,7 +103,7 @@ class _HomeHeroSection extends StatelessWidget {
           Positioned(
             left: 20,
             right: 20,
-            top: 342,
+            top: 424,
             child: _HeroTools(
               onOpenBudget: onOpenBudget,
               onOpenInsight: onOpenInsight,
