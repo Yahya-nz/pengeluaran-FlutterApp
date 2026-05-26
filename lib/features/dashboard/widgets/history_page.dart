@@ -1,27 +1,29 @@
-part of '../dashboard_page.dart';
+import 'dashboard_shared.dart';
+import 'add_note_page.dart';
 
-class _HistoryDashboard extends StatefulWidget {
-  const _HistoryDashboard({
+class HistoryDashboard extends StatefulWidget {
+  const HistoryDashboard({
+    super.key,
     required this.transactions,
     required this.onDelete,
     required this.onEdit,
     required this.onMarkSettled,
   });
 
-  final List<_TransactionItem> transactions;
-  final ValueChanged<_TransactionItem> onDelete;
-  final ValueChanged<_TransactionItem> onEdit;
-  final ValueChanged<_TransactionItem> onMarkSettled;
+  final List<DashboardTransaction> transactions;
+  final ValueChanged<DashboardTransaction> onDelete;
+  final ValueChanged<DashboardTransaction> onEdit;
+  final ValueChanged<DashboardTransaction> onMarkSettled;
 
   @override
-  State<_HistoryDashboard> createState() => _HistoryDashboardState();
+  State<HistoryDashboard> createState() => HistoryDashboardState();
 }
 
-class _HistoryDashboardState extends State<_HistoryDashboard> {
+class HistoryDashboardState extends State<HistoryDashboard> {
   String _query = '';
   String _category = 'Semua';
 
-  List<_TransactionItem> get _visibleTransactions {
+  List<DashboardTransaction> get _visibleTransactions {
     return widget.transactions.where((item) {
       final matchesQuery = _query.trim().isEmpty ||
           item.title.toLowerCase().contains(_query.toLowerCase()) ||
@@ -72,7 +74,7 @@ class _HistoryDashboardState extends State<_HistoryDashboard> {
         const _MonthHeader(),
         const SizedBox(height: 14),
         if (visibleTransactions.isEmpty)
-          const _EmptyStateCard(
+          const EmptyStateCard(
             icon: Icons.receipt_long_outlined,
             title: 'Belum ada catatan',
             message: 'Coba ubah pencarian atau filter kategorinya.',
@@ -81,7 +83,7 @@ class _HistoryDashboardState extends State<_HistoryDashboard> {
           _CardList(
             children: visibleTransactions
                 .map(
-                  (transaction) => _TransactionTile(
+                  (transaction) => TransactionTile(
                     item: transaction,
                     onTap: () {
                       showDialog<void>(
@@ -135,9 +137,9 @@ class _FilterDialogState extends State<_FilterDialog> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      builder: (context) => _CategoryPickerSheet(
+      builder: (context) => CategoryPickerSheet(
         selectedCategory: _category,
-        kind: _CategoryKind.expense,
+        kind: CategoryKind.expense,
         includeAll: true,
         onSelected: (category) {
           setState(() => _category = category);
@@ -181,7 +183,7 @@ class _FilterDialogState extends State<_FilterDialog> {
             Row(
               children: [
                 Expanded(
-                  child: _DialogSelectField(
+                  child: DialogSelectField(
                     label: 'Kategori',
                     value: _category == 'Semua' ? 'Semua' : _category,
                     icon: Icons.work_rounded,
@@ -192,7 +194,7 @@ class _FilterDialogState extends State<_FilterDialog> {
                 ),
                 const SizedBox(width: 20),
                 const Expanded(
-                  child: _DialogSelectField(
+                  child: DialogSelectField(
                     label: 'Tanggal',
                     value: 'Pilih tanggal',
                     icon: null,
@@ -260,7 +262,7 @@ class _TransactionDetailDialog extends StatelessWidget {
     required this.onMarkSettled,
   });
 
-  final _TransactionItem item;
+  final DashboardTransaction item;
   final VoidCallback onDelete;
   final VoidCallback onEdit;
   final VoidCallback onMarkSettled;
@@ -354,7 +356,7 @@ class _DebtPaymentDialog extends StatelessWidget {
     required this.onMarkSettled,
   });
 
-  final _TransactionItem item;
+  final DashboardTransaction item;
   final VoidCallback onMarkSettled;
 
   @override
@@ -381,7 +383,7 @@ class _DebtPaymentDialog extends StatelessWidget {
             const Row(
               children: [
                 Expanded(
-                  child: _DialogSelectField(
+                  child: DialogSelectField(
                     label: 'Dompet',
                     value: 'BSI',
                     icon: Icons.credit_card_rounded,
@@ -390,7 +392,7 @@ class _DebtPaymentDialog extends StatelessWidget {
                 ),
                 SizedBox(width: 10),
                 Expanded(
-                  child: _DialogSelectField(
+                  child: DialogSelectField(
                     label: 'Tanggal Lunas',
                     value: '12 Juni 2026',
                     icon: null,
@@ -462,7 +464,7 @@ class _LoanDetailDialog extends StatelessWidget {
     required this.onMarkSettled,
   });
 
-  final _TransactionItem item;
+  final DashboardTransaction item;
   final VoidCallback onDelete;
   final VoidCallback onEdit;
   final VoidCallback onMarkSettled;
@@ -511,7 +513,7 @@ class _LoanDetailDialog extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Rp ${_formatPlain(item.amountValue.abs())}',
+                      'Rp ${formatPlain(item.amountValue.abs())}',
                       style: const TextStyle(
                         color: SakuColors.neutral300,
                         fontSize: 24,
@@ -726,20 +728,21 @@ class _CardList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: _cardDecoration(),
+      decoration: cardDecoration(),
       child: Column(children: children),
     );
   }
 }
 
-class _TransactionTile extends StatelessWidget {
-  const _TransactionTile({
+class TransactionTile extends StatelessWidget {
+  const TransactionTile({
+    super.key,
     required this.item,
     this.compactIcon = false,
     this.onTap,
   });
 
-  final _TransactionItem item;
+  final DashboardTransaction item;
   final bool compactIcon;
   final VoidCallback? onTap;
 

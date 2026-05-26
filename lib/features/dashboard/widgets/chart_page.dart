@@ -1,9 +1,11 @@
-part of '../dashboard_page.dart';
+import 'dart:math' as math;
 
-class _ChartDashboard extends StatelessWidget {
-  const _ChartDashboard({required this.transactions});
+import 'dashboard_shared.dart';
 
-  final List<_TransactionItem> transactions;
+class ChartDashboard extends StatelessWidget {
+  const ChartDashboard({super.key, required this.transactions});
+
+  final List<DashboardTransaction> transactions;
 
   static const _palette = [
     Color(0xFFFF355D),
@@ -39,7 +41,7 @@ class _ChartDashboard extends StatelessWidget {
         title: entry.key,
         percent: math.max(1, ((entry.value / total) * 100).round()),
         amountValue: entry.value,
-        icon: _categoryIcon(entry.key),
+        icon: categoryIcon(entry.key),
         color: color,
       );
     }).toList();
@@ -75,7 +77,7 @@ class _ChartDashboard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 32),
           child: _ChartSection(
             title: 'Pengeluaran',
-            total: _formatPlain(totalExpense),
+            total: formatPlain(totalExpense),
             categories: categories,
             accent: SakuColors.danger,
           ),
@@ -213,7 +215,7 @@ class _ChartSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: _cardDecoration(radius: 10),
+      decoration: cardDecoration(radius: 10),
       clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
@@ -355,7 +357,7 @@ class _ChartCategorySheet extends StatelessWidget {
                   child: Icon(category.icon, color: SakuColors.black),
                 ),
                 title: Text(category.title),
-                subtitle: Text('Rp ${_formatPlain(category.amountValue)}'),
+                subtitle: Text('Rp ${formatPlain(category.amountValue)}'),
                 trailing: Text(
                   '${category.percent}%',
                   style: const TextStyle(fontWeight: FontWeight.w900),
@@ -377,7 +379,7 @@ class _CompactIncomeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: _cardDecoration(radius: 10),
+      decoration: cardDecoration(radius: 10),
       child: Row(
         children: [
           const Icon(Icons.paid_outlined, color: SakuColors.success, size: 28),
@@ -393,7 +395,7 @@ class _CompactIncomeCard extends StatelessWidget {
             ),
           ),
           Text(
-            _formatPlain(totalIncome),
+            formatPlain(totalIncome),
             style: const TextStyle(
               color: SakuColors.success,
               fontSize: 18,

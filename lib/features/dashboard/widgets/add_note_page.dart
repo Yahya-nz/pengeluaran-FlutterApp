@@ -1,32 +1,33 @@
-part of '../dashboard_page.dart';
+import 'dashboard_shared.dart';
 
-class _AddNoteDashboard extends StatefulWidget {
-  const _AddNoteDashboard({
+class AddNoteDashboard extends StatefulWidget {
+  const AddNoteDashboard({
+    super.key,
     required this.mode,
     required this.onBack,
     required this.onSwitchMode,
     required this.onSave,
   });
 
-  final _AddNoteMode mode;
+  final AddNoteMode mode;
   final VoidCallback onBack;
-  final ValueChanged<_AddNoteMode> onSwitchMode;
-  final ValueChanged<_TransactionItem> onSave;
+  final ValueChanged<AddNoteMode> onSwitchMode;
+  final ValueChanged<DashboardTransaction> onSave;
 
   @override
-  State<_AddNoteDashboard> createState() => _AddNoteDashboardState();
+  State<AddNoteDashboard> createState() => AddNoteDashboardState();
 }
 
-class _AddNoteDashboardState extends State<_AddNoteDashboard> {
+class AddNoteDashboardState extends State<AddNoteDashboard> {
   final _nameController = TextEditingController(text: 'Nama');
   final _noteController = TextEditingController();
   String _amount = '0';
   String _expenseCategory = 'Makanan';
   String _incomeCategory = 'Gaji';
 
-  bool get _isLoan => widget.mode == _AddNoteMode.loan;
-  bool get _isIncome => widget.mode == _AddNoteMode.income;
-  bool get _isExpense => widget.mode == _AddNoteMode.expense;
+  bool get _isLoan => widget.mode == AddNoteMode.loan;
+  bool get _isIncome => widget.mode == AddNoteMode.income;
+  bool get _isExpense => widget.mode == AddNoteMode.expense;
   bool get _isDailyNote => _isExpense || _isIncome;
   String get _selectedCategory =>
       _isIncome ? _incomeCategory : _expenseCategory;
@@ -74,7 +75,7 @@ class _AddNoteDashboardState extends State<_AddNoteDashboard> {
             : 'Hutang';
     final isMoneyOut = _isExpense || _isLoan;
     widget.onSave(
-      _TransactionItem(
+      DashboardTransaction(
         title: title,
         note: note.isNotEmpty
             ? note
@@ -83,7 +84,7 @@ class _AddNoteDashboardState extends State<_AddNoteDashboard> {
                 : '${_isLoan ? 'Pinjaman ke' : 'Hutang ke'} ${name.isEmpty ? 'Nama' : name}',
         amountValue: isMoneyOut ? -numericAmount : numericAmount,
         time: 'Baru saja',
-        icon: _categoryIcon(title),
+        icon: categoryIcon(title),
         color: isMoneyOut ? SakuColors.danger : SakuColors.success,
       ),
     );
@@ -92,9 +93,9 @@ class _AddNoteDashboardState extends State<_AddNoteDashboard> {
   Future<void> _openCategoryPicker() async {
     final category = await Navigator.of(context).push<String>(
       MaterialPageRoute(
-        builder: (context) => _CategorySelectionPage(
+        builder: (context) => CategorySelectionPage(
           selectedCategory: _selectedCategory,
-          kind: _isIncome ? _CategoryKind.income : _CategoryKind.expense,
+          kind: _isIncome ? CategoryKind.income : CategoryKind.expense,
         ),
       ),
     );
@@ -112,7 +113,7 @@ class _AddNoteDashboardState extends State<_AddNoteDashboard> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _ChildPageTopBar(title: 'Tambah Catatan', onBack: widget.onBack),
+        ChildPageTopBar(title: 'Tambah Catatan', onBack: widget.onBack),
         Expanded(
           child: ListView(
             padding: const EdgeInsets.fromLTRB(32, 18, 32, 14),
@@ -141,10 +142,10 @@ class _AddNoteDashboardState extends State<_AddNoteDashboard> {
               ),
               const SizedBox(height: 14),
               if (_isDailyNote) ...[
-                _SelectablePillField(
+                SelectablePillField(
                   label: 'Kategori',
                   text: _selectedCategory,
-                  icon: _categoryIcon(_selectedCategory),
+                  icon: categoryIcon(_selectedCategory),
                   onTap: _openCategoryPicker,
                 ),
                 const SizedBox(height: 14),
@@ -158,13 +159,13 @@ class _AddNoteDashboardState extends State<_AddNoteDashboard> {
                 const SizedBox(height: 6),
                 const SizedBox(
                   width: 164,
-                  child: _WalletPicker(),
+                  child: WalletPicker(),
                 ),
               ] else ...[
                 Row(
                   children: [
                     Expanded(
-                      child: _EditablePillField(
+                      child: EditablePillField(
                         label: 'Nama',
                         controller: _nameController,
                       ),
@@ -181,7 +182,7 @@ class _AddNoteDashboardState extends State<_AddNoteDashboard> {
                 ),
               ],
               const SizedBox(height: 14),
-              _EditablePillField(
+              EditablePillField(
                 label: 'Catatan',
                 controller: _noteController,
                 hintText: 'Tulis catatan atau keterangan disini',
@@ -198,7 +199,7 @@ class _AddNoteDashboardState extends State<_AddNoteDashboard> {
                 const SizedBox(height: 6),
                 const SizedBox(
                   width: 164,
-                  child: _WalletPicker(),
+                  child: WalletPicker(),
                 ),
               ],
             ],
@@ -220,17 +221,18 @@ class _AddNoteDashboardState extends State<_AddNoteDashboard> {
   }
 }
 
-class _CategoryPickerSheet extends StatelessWidget {
-  const _CategoryPickerSheet({
+class CategoryPickerSheet extends StatelessWidget {
+  const CategoryPickerSheet({
+    super.key,
     required this.selectedCategory,
     required this.onSelected,
-    this.kind = _CategoryKind.expense,
+    this.kind = CategoryKind.expense,
     this.includeAll = false,
   });
 
   final String selectedCategory;
   final ValueChanged<String> onSelected;
-  final _CategoryKind kind;
+  final CategoryKind kind;
   final bool includeAll;
 
   static const _expenseCategories = [
@@ -295,7 +297,7 @@ class _CategoryPickerSheet extends StatelessWidget {
                   final selected = category == selectedCategory;
                   return _CategoryChoiceTile(
                     title: category,
-                    icon: _categoryIcon(category),
+                    icon: categoryIcon(category),
                     selected: selected,
                     onTap: () => onSelected(category),
                   );
@@ -309,27 +311,28 @@ class _CategoryPickerSheet extends StatelessWidget {
   }
 }
 
-enum _CategoryKind { expense, income }
+enum CategoryKind { expense, income }
 
-List<String> _categoriesForKind(_CategoryKind kind) {
-  return kind == _CategoryKind.income
-      ? _CategoryPickerSheet._incomeCategories
-      : _CategoryPickerSheet._expenseCategories;
+List<String> _categoriesForKind(CategoryKind kind) {
+  return kind == CategoryKind.income
+      ? CategoryPickerSheet._incomeCategories
+      : CategoryPickerSheet._expenseCategories;
 }
 
-class _CategorySelectionPage extends StatelessWidget {
-  const _CategorySelectionPage({
+class CategorySelectionPage extends StatelessWidget {
+  const CategorySelectionPage({
+    super.key,
     required this.selectedCategory,
     required this.kind,
   });
 
   final String selectedCategory;
-  final _CategoryKind kind;
+  final CategoryKind kind;
 
   @override
   Widget build(BuildContext context) {
     final categories = _categoriesForKind(kind);
-    final title = kind == _CategoryKind.income
+    final title = kind == CategoryKind.income
         ? 'Kategori Pemasukan'
         : 'Kategori Pengeluaran';
 
@@ -341,7 +344,7 @@ class _CategorySelectionPage extends StatelessWidget {
             width: 430,
             child: Column(
               children: [
-                _ChildPageTopBar(
+                ChildPageTopBar(
                   title: title,
                   onBack: () => Navigator.of(context).pop(),
                 ),
@@ -388,7 +391,7 @@ class _CategoryPageTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final asset = _categoryAsset(title);
+    final asset = categoryAsset(title);
     return Material(
       color: SakuColors.white,
       borderRadius: BorderRadius.circular(14),
@@ -412,8 +415,7 @@ class _CategoryPageTile extends StatelessWidget {
               if (asset != null)
                 Image.asset(asset, width: 38, height: 38, fit: BoxFit.contain)
               else
-                Icon(_categoryIcon(title),
-                    color: SakuColors.mango500, size: 36),
+                Icon(categoryIcon(title), color: SakuColors.mango500, size: 36),
               const SizedBox(height: 8),
               FittedBox(
                 fit: BoxFit.scaleDown,
@@ -497,8 +499,8 @@ class _AddNoteTypeSelector extends StatelessWidget {
     required this.onSwitchMode,
   });
 
-  final _AddNoteMode mode;
-  final ValueChanged<_AddNoteMode> onSwitchMode;
+  final AddNoteMode mode;
+  final ValueChanged<AddNoteMode> onSwitchMode;
 
   @override
   Widget build(BuildContext context) {
@@ -511,42 +513,42 @@ class _AddNoteTypeSelector extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            flex: mode == _AddNoteMode.expense ? 5 : 2,
+            flex: mode == AddNoteMode.expense ? 5 : 2,
             child: _ModeChip(
-              selected: mode == _AddNoteMode.expense,
+              selected: mode == AddNoteMode.expense,
               label: 'Pengeluaran',
               icon: Icons.paid_outlined,
-              onTap: () => onSwitchMode(_AddNoteMode.expense),
+              onTap: () => onSwitchMode(AddNoteMode.expense),
             ),
           ),
           const SizedBox(width: 6),
           Expanded(
-            flex: mode == _AddNoteMode.income ? 5 : 2,
+            flex: mode == AddNoteMode.income ? 5 : 2,
             child: _ModeChip(
-              selected: mode == _AddNoteMode.income,
+              selected: mode == AddNoteMode.income,
               label: 'Pemasukan',
               icon: Icons.savings_outlined,
-              onTap: () => onSwitchMode(_AddNoteMode.income),
+              onTap: () => onSwitchMode(AddNoteMode.income),
             ),
           ),
           const SizedBox(width: 6),
           Expanded(
-            flex: mode == _AddNoteMode.debt ? 5 : 2,
+            flex: mode == AddNoteMode.debt ? 5 : 2,
             child: _ModeChip(
-              selected: mode == _AddNoteMode.debt,
+              selected: mode == AddNoteMode.debt,
               label: 'Hutang',
               icon: Icons.payments_outlined,
-              onTap: () => onSwitchMode(_AddNoteMode.debt),
+              onTap: () => onSwitchMode(AddNoteMode.debt),
             ),
           ),
           const SizedBox(width: 6),
           Expanded(
-            flex: mode == _AddNoteMode.loan ? 6 : 2,
+            flex: mode == AddNoteMode.loan ? 6 : 2,
             child: _ModeChip(
-              selected: mode == _AddNoteMode.loan,
+              selected: mode == AddNoteMode.loan,
               label: 'Beri Pinjaman',
               icon: Icons.request_quote_outlined,
-              onTap: () => onSwitchMode(_AddNoteMode.loan),
+              onTap: () => onSwitchMode(AddNoteMode.loan),
             ),
           ),
         ],
@@ -675,8 +677,9 @@ class _LabeledPillField extends StatelessWidget {
   }
 }
 
-class _SelectablePillField extends StatelessWidget {
-  const _SelectablePillField({
+class SelectablePillField extends StatelessWidget {
+  const SelectablePillField({
+    super.key,
     required this.label,
     required this.text,
     required this.icon,
@@ -740,8 +743,9 @@ class _SelectablePillField extends StatelessWidget {
   }
 }
 
-class _EditablePillField extends StatelessWidget {
-  const _EditablePillField({
+class EditablePillField extends StatelessWidget {
+  const EditablePillField({
+    super.key,
     required this.label,
     required this.controller,
     this.hintText,
@@ -793,8 +797,8 @@ class _EditablePillField extends StatelessWidget {
   }
 }
 
-class _WalletPicker extends StatelessWidget {
-  const _WalletPicker();
+class WalletPicker extends StatelessWidget {
+  const WalletPicker({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -843,7 +847,7 @@ class _AmountDisplay extends StatelessWidget {
       ),
       alignment: Alignment.centerRight,
       child: Text(
-        _formatPlain(int.tryParse(amount) ?? 0),
+        formatPlain(int.tryParse(amount) ?? 0),
         style: const TextStyle(
           color: SakuColors.neutral300,
           fontSize: 31,

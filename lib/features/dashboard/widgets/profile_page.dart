@@ -1,7 +1,10 @@
-part of '../dashboard_page.dart';
+import 'dashboard_shared.dart';
+import '../../auth/google_auth_service.dart';
+import '../../auth/login_page.dart';
 
-class _ProfileDashboard extends StatefulWidget {
-  const _ProfileDashboard({
+class ProfileDashboard extends StatefulWidget {
+  const ProfileDashboard({
+    super.key,
     required this.initialName,
     required this.initialEmail,
     required this.onOpenNotifications,
@@ -14,16 +17,16 @@ class _ProfileDashboard extends StatefulWidget {
   final VoidCallback onAddHomeWidget;
 
   @override
-  State<_ProfileDashboard> createState() => _ProfileDashboardState();
+  State<ProfileDashboard> createState() => ProfileDashboardState();
 }
 
-class _ProfileDashboardState extends State<_ProfileDashboard> {
+class ProfileDashboardState extends State<ProfileDashboard> {
   late String _profileName;
   late String _profileEmail;
   bool _passwordChanged = false;
   bool _photoUpdated = false;
-  final List<_WalletItem> _wallets = [
-    const _WalletItem(name: 'BSI', balance: 12000000),
+  final List<WalletItem> _wallets = [
+    const WalletItem(name: 'BSI', balance: 12000000),
   ];
 
   @override
@@ -70,7 +73,7 @@ class _ProfileDashboardState extends State<_ProfileDashboard> {
 
   void _showProfilePhotoInfo() {
     setState(() => _photoUpdated = true);
-    _showInfoDialog(
+    showInfoDialog(
       context,
       title: 'Foto Profil',
       message:
@@ -78,7 +81,7 @@ class _ProfileDashboardState extends State<_ProfileDashboard> {
     );
   }
 
-  void _showWalletDetail(_WalletItem item) {
+  void _showWalletDetail(WalletItem item) {
     showDialog<void>(
       context: context,
       builder: (context) => _WalletDetailDialog(item: item),
@@ -525,7 +528,7 @@ class _ProfileSectionTitle extends StatelessWidget {
 class _WalletCard extends StatelessWidget {
   const _WalletCard(this.item, {required this.onTap});
 
-  final _WalletItem item;
+  final WalletItem item;
   final VoidCallback onTap;
 
   @override
@@ -566,7 +569,7 @@ class _WalletCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'Rp ${_formatPlain(item.balance)}',
+                        'Rp ${formatPlain(item.balance)}',
                         style: const TextStyle(
                           color: SakuColors.neutral600,
                           fontWeight: FontWeight.w800,
@@ -588,7 +591,7 @@ class _WalletCard extends StatelessWidget {
 class _WalletDetailDialog extends StatelessWidget {
   const _WalletDetailDialog({required this.item});
 
-  final _WalletItem item;
+  final WalletItem item;
 
   @override
   Widget build(BuildContext context) {
@@ -617,7 +620,7 @@ class _WalletDetailDialog extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              'Saldo Rp ${_formatPlain(item.balance)}',
+              'Saldo Rp ${formatPlain(item.balance)}',
               style: const TextStyle(
                 color: SakuColors.neutral600,
                 fontWeight: FontWeight.w800,
@@ -769,7 +772,7 @@ class _ProfileMenuTile extends StatelessWidget {
 class _WalletFormDialog extends StatefulWidget {
   const _WalletFormDialog({required this.onSave});
 
-  final ValueChanged<_WalletItem> onSave;
+  final ValueChanged<WalletItem> onSave;
 
   @override
   State<_WalletFormDialog> createState() => _WalletFormDialogState();
@@ -789,14 +792,14 @@ class _WalletFormDialogState extends State<_WalletFormDialog> {
 
   void _save() {
     final name = _nameController.text.trim();
-    final balance = _parseCurrency(_balanceController.text);
+    final balance = parseCurrency(_balanceController.text);
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Nama dompet belum diisi')),
       );
       return;
     }
-    widget.onSave(_WalletItem(name: name, balance: balance));
+    widget.onSave(WalletItem(name: name, balance: balance));
   }
 
   @override

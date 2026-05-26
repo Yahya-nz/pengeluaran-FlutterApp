@@ -1,29 +1,31 @@
-part of '../dashboard_page.dart';
+import 'dashboard_shared.dart';
+import 'add_note_page.dart';
 
-class _EditTransactionDashboard extends StatefulWidget {
-  const _EditTransactionDashboard({
+class EditTransactionDashboard extends StatefulWidget {
+  const EditTransactionDashboard({
+    super.key,
     required this.item,
     required this.onBack,
     required this.onSave,
   });
 
-  final _TransactionItem? item;
+  final DashboardTransaction? item;
   final VoidCallback onBack;
-  final void Function(_TransactionItem oldItem, _TransactionItem newItem)
-      onSave;
+  final void Function(
+      DashboardTransaction oldItem, DashboardTransaction newItem) onSave;
 
   @override
-  State<_EditTransactionDashboard> createState() =>
-      _EditTransactionDashboardState();
+  State<EditTransactionDashboard> createState() =>
+      EditTransactionDashboardState();
 }
 
-class _EditTransactionDashboardState extends State<_EditTransactionDashboard> {
+class EditTransactionDashboardState extends State<EditTransactionDashboard> {
   late final TextEditingController _nameController;
   late final TextEditingController _noteController;
   late final TextEditingController _amountController;
   late String _category;
 
-  _TransactionItem? get _item => widget.item;
+  DashboardTransaction? get _item => widget.item;
   bool get _isLoan => _item?.title == 'Beri Pinjaman';
   bool get _isDebt => _item?.title == 'Hutang';
   bool get _isDaily => !_isLoan && !_isDebt;
@@ -43,7 +45,7 @@ class _EditTransactionDashboardState extends State<_EditTransactionDashboard> {
     _nameController = TextEditingController(text: person);
     _noteController = TextEditingController(text: item?.note ?? '');
     _amountController = TextEditingController(
-      text: item == null ? '' : _formatPlain(item.amountValue.abs()),
+      text: item == null ? '' : formatPlain(item.amountValue.abs()),
     );
   }
 
@@ -58,9 +60,9 @@ class _EditTransactionDashboardState extends State<_EditTransactionDashboard> {
   Future<void> _openCategoryPicker() async {
     final category = await Navigator.of(context).push<String>(
       MaterialPageRoute(
-        builder: (context) => _CategorySelectionPage(
+        builder: (context) => CategorySelectionPage(
           selectedCategory: _category,
-          kind: _isIncome ? _CategoryKind.income : _CategoryKind.expense,
+          kind: _isIncome ? CategoryKind.income : CategoryKind.expense,
         ),
       ),
     );
@@ -71,7 +73,7 @@ class _EditTransactionDashboardState extends State<_EditTransactionDashboard> {
   void _save() {
     final item = _item;
     if (item == null) return;
-    final amount = _parseCurrency(_amountController.text);
+    final amount = parseCurrency(_amountController.text);
     if (amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Nominal belum diisi')),
@@ -93,7 +95,7 @@ class _EditTransactionDashboardState extends State<_EditTransactionDashboard> {
                 ? 'Catatan $title'
                 : '${_isLoan ? 'Pinjaman ke' : 'Hutang ke'} ${name.isEmpty ? 'Nama' : name}',
         amountValue: isMoneyOut ? -amount : amount,
-        icon: _categoryIcon(title),
+        icon: categoryIcon(title),
         color: isMoneyOut ? SakuColors.danger : SakuColors.success,
       ),
     );
@@ -105,7 +107,7 @@ class _EditTransactionDashboardState extends State<_EditTransactionDashboard> {
     if (item == null) {
       return Column(
         children: [
-          _ChildPageTopBar(title: 'Edit Catatan', onBack: widget.onBack),
+          ChildPageTopBar(title: 'Edit Catatan', onBack: widget.onBack),
           const Expanded(
             child: Center(child: Text('Catatan tidak ditemukan')),
           ),
@@ -115,25 +117,25 @@ class _EditTransactionDashboardState extends State<_EditTransactionDashboard> {
 
     return Column(
       children: [
-        _ChildPageTopBar(title: 'Edit Catatan', onBack: widget.onBack),
+        ChildPageTopBar(title: 'Edit Catatan', onBack: widget.onBack),
         Expanded(
           child: ListView(
             padding: const EdgeInsets.fromLTRB(32, 22, 32, 22),
             children: [
               if (_isDaily)
-                _SelectablePillField(
+                SelectablePillField(
                   label: 'Kategori',
                   text: _category,
-                  icon: _categoryIcon(_category),
+                  icon: categoryIcon(_category),
                   onTap: _openCategoryPicker,
                 )
               else
-                _EditablePillField(
+                EditablePillField(
                   label: 'Nama',
                   controller: _nameController,
                 ),
               const SizedBox(height: 14),
-              _EditablePillField(
+              EditablePillField(
                 label: 'Catatan',
                 controller: _noteController,
                 hintText: 'Tulis catatan atau keterangan disini',
@@ -164,7 +166,7 @@ class _EditTransactionDashboardState extends State<_EditTransactionDashboard> {
               const SizedBox(height: 20),
               const SizedBox(
                 width: 164,
-                child: _WalletPicker(),
+                child: WalletPicker(),
               ),
             ],
           ),

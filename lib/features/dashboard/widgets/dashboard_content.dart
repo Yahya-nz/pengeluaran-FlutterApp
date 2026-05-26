@@ -1,7 +1,17 @@
-part of '../dashboard_page.dart';
+import 'dashboard_shared.dart';
+import 'add_note_page.dart';
+import 'budget_page.dart';
+import 'chart_page.dart';
+import 'edit_transaction_page.dart';
+import 'history_page.dart';
+import 'home_page.dart';
+import 'insight_page.dart';
+import 'notifications_page.dart';
+import 'profile_page.dart';
 
-class _DashboardContent extends StatelessWidget {
-  const _DashboardContent({
+class DashboardContent extends StatelessWidget {
+  const DashboardContent({
+    super.key,
     required this.state,
     required this.userName,
     required this.userEmail,
@@ -17,63 +27,63 @@ class _DashboardContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<DashboardCubit>();
     return switch (state.surface) {
-      _DashboardSurface.budget => _BudgetDashboard(
+      DashboardSurface.budget => BudgetDashboard(
           budgets: state.budgets,
           onBack: cubit.showMain,
         ),
-      _DashboardSurface.insight => _InsightDashboard(onBack: cubit.showMain),
-      _DashboardSurface.notifications => _NotificationsDashboard(
+      DashboardSurface.insight => InsightDashboard(onBack: cubit.showMain),
+      DashboardSurface.notifications => NotificationsDashboard(
           onBack: cubit.showMain,
         ),
-      _DashboardSurface.addExpense => _AddNoteDashboard(
-          mode: _AddNoteMode.expense,
-          onBack: cubit.showMain,
-          onSwitchMode: cubit.showAddNote,
-          onSave: cubit.addTransaction,
-        ),
-      _DashboardSurface.addIncome => _AddNoteDashboard(
-          mode: _AddNoteMode.income,
+      DashboardSurface.addExpense => AddNoteDashboard(
+          mode: AddNoteMode.expense,
           onBack: cubit.showMain,
           onSwitchMode: cubit.showAddNote,
           onSave: cubit.addTransaction,
         ),
-      _DashboardSurface.addDebt => _AddNoteDashboard(
-          mode: _AddNoteMode.debt,
+      DashboardSurface.addIncome => AddNoteDashboard(
+          mode: AddNoteMode.income,
           onBack: cubit.showMain,
           onSwitchMode: cubit.showAddNote,
           onSave: cubit.addTransaction,
         ),
-      _DashboardSurface.addLoan => _AddNoteDashboard(
-          mode: _AddNoteMode.loan,
+      DashboardSurface.addDebt => AddNoteDashboard(
+          mode: AddNoteMode.debt,
           onBack: cubit.showMain,
           onSwitchMode: cubit.showAddNote,
           onSave: cubit.addTransaction,
         ),
-      _DashboardSurface.editTransaction => _EditTransactionDashboard(
+      DashboardSurface.addLoan => AddNoteDashboard(
+          mode: AddNoteMode.loan,
+          onBack: cubit.showMain,
+          onSwitchMode: cubit.showAddNote,
+          onSave: cubit.addTransaction,
+        ),
+      DashboardSurface.editTransaction => EditTransactionDashboard(
           item: state.editingTransaction,
           onBack: cubit.showMain,
           onSave: cubit.updateTransaction,
         ),
-      _DashboardSurface.main => switch (state.currentIndex) {
-          0 => _HomeDashboard(
+      DashboardSurface.main => switch (state.currentIndex) {
+          0 => HomeDashboard(
               userName: userName,
               transactions: state.transactions,
               onOpenHistory: () => cubit.selectTab(1),
-              onOpenBudget: () => cubit.showSurface(_DashboardSurface.budget),
-              onOpenInsight: () => cubit.showSurface(_DashboardSurface.insight),
+              onOpenBudget: () => cubit.showSurface(DashboardSurface.budget),
+              onOpenInsight: () => cubit.showSurface(DashboardSurface.insight),
             ),
-          1 => _HistoryDashboard(
+          1 => HistoryDashboard(
               transactions: state.transactions,
               onDelete: cubit.deleteTransaction,
               onEdit: cubit.openEditTransaction,
               onMarkSettled: cubit.markTransactionSettled,
             ),
-          2 => _ChartDashboard(transactions: state.transactions),
-          _ => _ProfileDashboard(
+          2 => ChartDashboard(transactions: state.transactions),
+          _ => ProfileDashboard(
               initialName: userName,
               initialEmail: userEmail,
               onOpenNotifications: () =>
-                  cubit.showSurface(_DashboardSurface.notifications),
+                  cubit.showSurface(DashboardSurface.notifications),
               onAddHomeWidget: onRequestHomeWidget,
             ),
         },

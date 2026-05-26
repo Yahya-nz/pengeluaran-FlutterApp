@@ -1,18 +1,18 @@
-part of '../dashboard_page.dart';
+import 'dashboard_shared.dart';
 
-class _InsightDashboard extends StatefulWidget {
-  const _InsightDashboard({required this.onBack});
+class InsightDashboard extends StatefulWidget {
+  const InsightDashboard({super.key, required this.onBack});
 
   final VoidCallback onBack;
 
   @override
-  State<_InsightDashboard> createState() => _InsightDashboardState();
+  State<InsightDashboard> createState() => InsightDashboardState();
 }
 
-class _InsightDashboardState extends State<_InsightDashboard> {
+class InsightDashboardState extends State<InsightDashboard> {
   final _scrollController = ScrollController();
-  final List<_ChatMessage> _messages = const [
-    _ChatMessage(
+  final List<ChatMessage> _messages = const [
+    ChatMessage(
       text:
           'Halo, aku Saku AI. Untuk demo ini aku bisa bantu baca pola catatan, kasih tips hemat, dan bikin arahan budgeting sederhana.',
       fromUser: false,
@@ -37,9 +37,9 @@ class _InsightDashboardState extends State<_InsightDashboard> {
 
     setState(() {
       _messages
-          .add(_ChatMessage(text: message, fromUser: true, time: 'Sekarang'));
+          .add(ChatMessage(text: message, fromUser: true, time: 'Sekarang'));
       _messages.add(
-        _ChatMessage(
+        ChatMessage(
           text: _buildDemoReply(message),
           fromUser: false,
           time: 'Sekarang',
@@ -96,7 +96,7 @@ class _InsightDashboardState extends State<_InsightDashboard> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _ChildPageTopBar(title: 'Saku AI', onBack: widget.onBack),
+        ChildPageTopBar(title: 'Saku AI', onBack: widget.onBack),
         Expanded(
           child: Container(
             color: SakuColors.blue50,
@@ -209,7 +209,7 @@ class _QuestionPill extends StatelessWidget {
 class _ChatBubble extends StatelessWidget {
   const _ChatBubble(this.message);
 
-  final _ChatMessage message;
+  final ChatMessage message;
 
   @override
   Widget build(BuildContext context) {

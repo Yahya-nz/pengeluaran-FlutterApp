@@ -1,7 +1,11 @@
-part of '../dashboard_page.dart';
+import 'dashboard_shared.dart';
+import '../../auth/google_auth_service.dart';
+import '../../auth/login_page.dart';
+import 'history_page.dart';
 
-class _HomeDashboard extends StatelessWidget {
-  const _HomeDashboard({
+class HomeDashboard extends StatelessWidget {
+  const HomeDashboard({
+    super.key,
     required this.userName,
     required this.transactions,
     required this.onOpenHistory,
@@ -10,7 +14,7 @@ class _HomeDashboard extends StatelessWidget {
   });
 
   final String userName;
-  final List<_TransactionItem> transactions;
+  final List<DashboardTransaction> transactions;
   final VoidCallback onOpenHistory;
   final VoidCallback onOpenBudget;
   final VoidCallback onOpenInsight;
@@ -121,7 +125,7 @@ class _HomeBodyPanel extends StatelessWidget {
     required this.onOpenHistory,
   });
 
-  final List<_TransactionItem> transactions;
+  final List<DashboardTransaction> transactions;
   final VoidCallback onOpenHistory;
 
   @override
@@ -356,7 +360,7 @@ class _HeroTools extends StatelessWidget {
             child: Container(
               width: 224,
               padding: const EdgeInsets.all(13),
-              decoration: _cardDecoration(radius: 16),
+              decoration: cardDecoration(radius: 16),
               child: Row(
                 children: [
                   Expanded(
@@ -448,13 +452,13 @@ class _RecentNotesCard extends StatelessWidget {
     required this.onOpenMore,
   });
 
-  final List<_TransactionItem> transactions;
+  final List<DashboardTransaction> transactions;
   final VoidCallback onOpenMore;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: _cardDecoration(radius: 18),
+      decoration: cardDecoration(radius: 18),
       child: Column(
         children: [
           const Padding(
@@ -519,7 +523,7 @@ class _RecentNotesCard extends StatelessWidget {
               ],
             ),
           ),
-          ...transactions.map((transaction) => _TransactionTile(
+          ...transactions.map((transaction) => TransactionTile(
                 item: transaction,
                 compactIcon: true,
               )),
@@ -574,7 +578,7 @@ class _ActiveDebtCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: _cardDecoration(radius: 18),
+      decoration: cardDecoration(radius: 18),
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 6),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,25 +1,25 @@
-part of '../dashboard_page.dart';
+import 'dashboard_shared.dart';
 
-class _NotificationsDashboard extends StatelessWidget {
-  const _NotificationsDashboard({required this.onBack});
+class NotificationsDashboard extends StatelessWidget {
+  const NotificationsDashboard({super.key, required this.onBack});
 
   final VoidCallback onBack;
 
   static const _items = [
-    _NotificationItem(
+    NotificationItem(
       title: 'Jangan lupa catat ya. sudah ada\npengeluaran hari ini?',
       time: '4:40 PM',
       icon: Icons.edit_note_rounded,
       iconColor: SakuColors.neutral700,
     ),
-    _NotificationItem(
+    NotificationItem(
       title:
           'Pengeluaran meningkat kamu\nmenghabiskan lebih banyak dari pada\nbiasanya',
       time: '6.30 PM',
       icon: Icons.trending_down_rounded,
       iconColor: SakuColors.danger,
     ),
-    _NotificationItem(
+    NotificationItem(
       title:
           'Pengeluaran tercatat\nkamu baru saja mengeluarkan Rp\n50.000 untuk makan',
       time: '8.25 PM',
@@ -32,7 +32,7 @@ class _NotificationsDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _ChildPageTopBar(title: 'Notifikasi', onBack: onBack),
+        ChildPageTopBar(title: 'Notifikasi', onBack: onBack),
         Expanded(
           child: ListView.builder(
             padding: EdgeInsets.zero,
@@ -50,7 +50,7 @@ class _NotificationsDashboard extends StatelessWidget {
 class _NotificationRow extends StatelessWidget {
   const _NotificationRow({required this.item});
 
-  final _NotificationItem item;
+  final NotificationItem item;
 
   @override
   Widget build(BuildContext context) {

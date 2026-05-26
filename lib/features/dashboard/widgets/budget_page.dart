@@ -1,19 +1,21 @@
-part of '../dashboard_page.dart';
+import 'dashboard_shared.dart';
+import 'add_note_page.dart';
 
-class _BudgetDashboard extends StatelessWidget {
-  const _BudgetDashboard({
+class BudgetDashboard extends StatelessWidget {
+  const BudgetDashboard({
+    super.key,
     required this.budgets,
     required this.onBack,
   });
 
-  final List<_BudgetItem> budgets;
+  final List<DashboardBudget> budgets;
   final VoidCallback onBack;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _ChildPageTopBar(title: 'Budget', onBack: onBack),
+        ChildPageTopBar(title: 'Budget', onBack: onBack),
         Expanded(
           child: ListView(
             padding: const EdgeInsets.fromLTRB(32, 28, 32, 120),
@@ -73,7 +75,7 @@ class _BudgetDashboard extends StatelessWidget {
 class _BudgetRow extends StatelessWidget {
   const _BudgetRow(this.item);
 
-  final _BudgetItem item;
+  final DashboardBudget item;
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +116,7 @@ class _BudgetRow extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Rp ${_formatPlain(item.amountValue)}',
+                      'Rp ${formatPlain(item.amountValue)}',
                       style: const TextStyle(
                         color: SakuColors.black,
                         fontSize: 16,
@@ -157,16 +159,16 @@ class _BudgetRow extends StatelessWidget {
   }
 }
 
-class _BudgetFormDialog extends StatefulWidget {
-  const _BudgetFormDialog({required this.onSave});
+class BudgetFormDialog extends StatefulWidget {
+  const BudgetFormDialog({super.key, required this.onSave});
 
-  final ValueChanged<_BudgetItem> onSave;
+  final ValueChanged<DashboardBudget> onSave;
 
   @override
-  State<_BudgetFormDialog> createState() => _BudgetFormDialogState();
+  State<BudgetFormDialog> createState() => BudgetFormDialogState();
 }
 
-class _BudgetFormDialogState extends State<_BudgetFormDialog> {
+class BudgetFormDialogState extends State<BudgetFormDialog> {
   final _amountController = TextEditingController();
   String _category = 'Kategori';
 
@@ -183,9 +185,9 @@ class _BudgetFormDialogState extends State<_BudgetFormDialog> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      builder: (context) => _CategoryPickerSheet(
+      builder: (context) => CategoryPickerSheet(
         selectedCategory: _category,
-        kind: _CategoryKind.expense,
+        kind: CategoryKind.expense,
         onSelected: (category) {
           setState(() => _category = category);
           Navigator.of(context).pop();
@@ -195,7 +197,7 @@ class _BudgetFormDialogState extends State<_BudgetFormDialog> {
   }
 
   void _save() {
-    final amount = _parseCurrency(_amountController.text);
+    final amount = parseCurrency(_amountController.text);
     if (_category == 'Kategori' || amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Lengkapi kategori dan nominal budget')),
@@ -204,12 +206,12 @@ class _BudgetFormDialogState extends State<_BudgetFormDialog> {
     }
 
     widget.onSave(
-      _BudgetItem(
+      DashboardBudget(
         title: _category,
         amountValue: amount,
         remaining: 'sisa 100%',
         progress: 1,
-        icon: _categoryIcon(_category),
+        icon: categoryIcon(_category),
       ),
     );
   }
@@ -239,7 +241,7 @@ class _BudgetFormDialogState extends State<_BudgetFormDialog> {
             Row(
               children: [
                 const Expanded(
-                  child: _DialogSelectField(
+                  child: DialogSelectField(
                     label: 'Dompet',
                     value: 'BSI',
                     icon: Icons.credit_card_rounded,
@@ -248,7 +250,7 @@ class _BudgetFormDialogState extends State<_BudgetFormDialog> {
                 ),
                 const SizedBox(width: 24),
                 Expanded(
-                  child: _DialogSelectField(
+                  child: DialogSelectField(
                     label: 'Kategori',
                     value: _category,
                     icon: Icons.work_rounded,
