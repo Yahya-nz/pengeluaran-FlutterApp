@@ -61,7 +61,7 @@ class _HomeHeroSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 565,
+      height: 525,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -69,7 +69,7 @@ class _HomeHeroSection extends StatelessWidget {
             left: 0,
             top: 0,
             right: 0,
-            height: 506,
+            height: 472,
             child: DecoratedBox(
               decoration: BoxDecoration(
                 color: SakuColors.blue100,
@@ -84,7 +84,7 @@ class _HomeHeroSection extends StatelessWidget {
           const Positioned(
             left: 0,
             right: 0,
-            top: 454,
+            top: 418,
             bottom: 0,
             child: DecoratedBox(
               decoration: BoxDecoration(
@@ -96,9 +96,9 @@ class _HomeHeroSection extends StatelessWidget {
             ),
           ),
           Positioned(
-            left: 22,
-            right: 22,
-            top: 50,
+            left: 20,
+            right: 20,
+            top: 36,
             child: _BalanceCard(
               userName: userName,
               onLogout: onLogout,
@@ -107,7 +107,7 @@ class _HomeHeroSection extends StatelessWidget {
           Positioned(
             left: 20,
             right: 20,
-            top: 424,
+            top: 388,
             child: _HeroTools(
               onOpenBudget: onOpenBudget,
               onOpenInsight: onOpenInsight,
@@ -159,7 +159,7 @@ class _BalanceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(26, 28, 26, 24),
+      padding: const EdgeInsets.fromLTRB(22, 22, 22, 20),
       decoration: BoxDecoration(
         color: SakuColors.blue900.withValues(alpha: 0.78),
         borderRadius: BorderRadius.circular(28),
@@ -176,15 +176,15 @@ class _BalanceCard extends StatelessWidget {
           Row(
             children: [
               const CircleAvatar(
-                radius: 28,
+                radius: 24,
                 backgroundColor: SakuColors.blue50,
                 child: Icon(
                   Icons.person_rounded,
                   color: SakuColors.blue700,
-                  size: 34,
+                  size: 29,
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   'Hei, $userName!',
@@ -192,7 +192,7 @@ class _BalanceCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: SakuColors.white,
-                    fontSize: 28,
+                    fontSize: 23,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -207,7 +207,7 @@ class _BalanceCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 20),
           const Row(
             children: [
               Expanded(
@@ -215,7 +215,7 @@ class _BalanceCard extends StatelessWidget {
                   'Total Saldo',
                   style: TextStyle(
                     color: SakuColors.white,
-                    fontSize: 21,
+                    fontSize: 18,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -223,14 +223,14 @@ class _BalanceCard extends StatelessWidget {
               Icon(
                 Icons.visibility_outlined,
                 color: SakuColors.white,
-                size: 32,
+                size: 27,
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 11),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 13),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 11),
             decoration: BoxDecoration(
               color: SakuColors.blue100,
               borderRadius: BorderRadius.circular(28),
@@ -243,15 +243,15 @@ class _BalanceCard extends StatelessWidget {
                 '12.000.000',
                 style: TextStyle(
                   color: SakuColors.neutral700,
-                  fontSize: 32,
+                  fontSize: 28,
                   fontWeight: FontWeight.w900,
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 13),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
             decoration: BoxDecoration(
               color: SakuColors.white.withValues(alpha: 0.92),
               borderRadius: BorderRadius.circular(28),
@@ -267,7 +267,7 @@ class _BalanceCard extends StatelessWidget {
                     color: SakuColors.danger,
                   ),
                 ),
-                SizedBox(width: 16),
+                SizedBox(width: 10),
                 Expanded(
                   child: _HeroMetric(
                     title: 'Pemasukan',
@@ -302,8 +302,8 @@ class _HeroMetric extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, color: color, size: 26),
-        const SizedBox(width: 10),
+        Icon(icon, color: color, size: 21),
+        const SizedBox(width: 7),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -314,7 +314,7 @@ class _HeroMetric extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   color: SakuColors.black,
-                  fontSize: 14,
+                  fontSize: 12,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -326,7 +326,7 @@ class _HeroMetric extends StatelessWidget {
                   amount,
                   style: const TextStyle(
                     color: SakuColors.black,
-                    fontSize: 22,
+                    fontSize: 18,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -351,15 +351,15 @@ class _HeroTools extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 118,
+      height: 108,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           Align(
             alignment: Alignment.centerLeft,
             child: Container(
-              width: 224,
-              padding: const EdgeInsets.all(13),
+              width: 210,
+              padding: const EdgeInsets.all(11),
               decoration: cardDecoration(radius: 16),
               child: Row(
                 children: [
@@ -370,7 +370,7 @@ class _HeroTools extends StatelessWidget {
                       onTap: onOpenBudget,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: _ToolShortcut(
                       title: 'Saku Insight',
@@ -387,8 +387,8 @@ class _HeroTools extends StatelessWidget {
             bottom: -2,
             child: Image(
               image: AssetImage('assets/Maskot-dashboard.png'),
-              width: 156,
-              height: 98,
+              width: 138,
+              height: 88,
               fit: BoxFit.contain,
             ),
           ),
@@ -418,16 +418,16 @@ class _ToolShortcut extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 58,
-            height: 58,
+            width: 52,
+            height: 52,
             decoration: BoxDecoration(
               color: SakuColors.blue50,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: SakuColors.blue100, width: 2),
             ),
-            child: Icon(icon, color: SakuColors.blue300, size: 34),
+            child: Icon(icon, color: SakuColors.blue300, size: 30),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
@@ -435,7 +435,7 @@ class _ToolShortcut extends StatelessWidget {
               maxLines: 1,
               style: const TextStyle(
                 color: SakuColors.black,
-                fontSize: 17,
+                fontSize: 15,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -469,7 +469,7 @@ class _RecentNotesCard extends StatelessWidget {
                 'Catatan Terakhir',
                 style: TextStyle(
                   color: SakuColors.black,
-                  fontSize: 24,
+                  fontSize: 21,
                   fontWeight: FontWeight.w900,
                 ),
               ),
@@ -484,7 +484,7 @@ class _RecentNotesCard extends StatelessWidget {
                   '18',
                   style: TextStyle(
                     color: SakuColors.black,
-                    fontSize: 44,
+                    fontSize: 39,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -497,7 +497,7 @@ class _RecentNotesCard extends StatelessWidget {
                         'April',
                         style: TextStyle(
                           color: SakuColors.black,
-                          fontSize: 22,
+                          fontSize: 20,
                           fontWeight: FontWeight.w900,
                         ),
                       ),
@@ -505,7 +505,7 @@ class _RecentNotesCard extends StatelessWidget {
                         'Sabtu',
                         style: TextStyle(
                           color: SakuColors.neutral300,
-                          fontSize: 19,
+                          fontSize: 17,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -516,7 +516,7 @@ class _RecentNotesCard extends StatelessWidget {
                   '11.970.000',
                   style: TextStyle(
                     color: SakuColors.neutral700,
-                    fontSize: 22,
+                    fontSize: 19,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -587,7 +587,7 @@ class _ActiveDebtCard extends StatelessWidget {
             'Hutang Aktif',
             style: TextStyle(
               color: SakuColors.black,
-              fontSize: 24,
+              fontSize: 21,
               fontWeight: FontWeight.w900,
             ),
           ),

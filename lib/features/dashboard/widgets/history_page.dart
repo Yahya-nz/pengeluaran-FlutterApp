@@ -808,9 +808,23 @@ class TransactionTile extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
+                  if (!compactIcon) ...[
+                    Text(
+                      item.date,
+                      style: const TextStyle(
+                        color: SakuColors.neutral600,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                  ],
                   Text(
                     item.time,
-                    style: const TextStyle(color: SakuColors.neutral300),
+                    style: const TextStyle(
+                      color: SakuColors.neutral300,
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ),

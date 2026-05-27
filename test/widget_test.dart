@@ -269,6 +269,13 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Buat Dompet baru'), findsOneWidget);
+    tester.view.viewInsets = const FakeViewPadding(bottom: 360);
+    addTearDown(tester.view.resetViewInsets);
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    tester.view.resetViewInsets();
+    await tester.pumpAndSettle();
+
     await tester.enterText(
       find.widgetWithText(TextField, 'Nama dompet'),
       'Cash',

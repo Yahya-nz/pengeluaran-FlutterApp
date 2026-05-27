@@ -83,6 +83,7 @@ class AddNoteDashboardState extends State<AddNoteDashboard> {
                 ? 'Catatan $title'
                 : '${_isLoan ? 'Pinjaman ke' : 'Hutang ke'} ${name.isEmpty ? 'Nama' : name}',
         amountValue: isMoneyOut ? -numericAmount : numericAmount,
+        date: '21 April 2026',
         time: 'Baru saja',
         icon: categoryIcon(title),
         color: isMoneyOut ? SakuColors.danger : SakuColors.success,

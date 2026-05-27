@@ -804,6 +804,10 @@ class _WalletFormDialogState extends State<_WalletFormDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final availableHeight = MediaQuery.sizeOf(context).height -
+        MediaQuery.viewInsetsOf(context).bottom -
+        32;
+
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 10),
       alignment: Alignment.bottomCenter,
@@ -811,163 +815,166 @@ class _WalletFormDialogState extends State<_WalletFormDialog> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       backgroundColor: SakuColors.white,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(22, 38, 22, 38),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Buat Dompet baru',
-              style: TextStyle(
-                color: SakuColors.black,
-                fontSize: 21,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-            const SizedBox(height: 26),
-            Row(
-              children: [
-                Expanded(
-                  child: _WalletDialogField(
-                    label: 'Nama Dompet',
-                    child: TextField(
-                      controller: _nameController,
-                      decoration: _walletInputDecoration('Nama dompet'),
-                    ),
-                  ),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: availableHeight),
+        child: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: const EdgeInsets.fromLTRB(22, 28, 22, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Buat Dompet baru',
+                style: TextStyle(
+                  color: SakuColors.black,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
                 ),
-                const SizedBox(width: 26),
-                Expanded(
-                  child: _WalletDialogField(
-                    label: 'Pilih Icon',
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(28),
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content:
-                                Text('Pilihan icon tersedia di versi demo'),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        height: 55,
-                        decoration: BoxDecoration(
-                          color: SakuColors.white,
-                          borderRadius: BorderRadius.circular(28),
-                          border: Border.all(color: SakuColors.neutral300),
-                        ),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.account_balance_wallet_rounded,
-                              color: SakuColors.mango500,
-                            ),
-                            SizedBox(width: 20),
-                            Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                              color: SakuColors.black,
-                              size: 30,
-                            ),
-                          ],
-                        ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: _WalletDialogField(
+                      label: 'Nama Dompet',
+                      child: TextField(
+                        controller: _nameController,
+                        decoration: _walletInputDecoration('Nama dompet'),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 26),
-            _WalletDialogField(
-              label: 'Saldo Awal',
-              child: TextField(
-                controller: _balanceController,
-                keyboardType: TextInputType.number,
-                decoration: _walletInputDecoration('Masukkan saldo awal..'),
-              ),
-            ),
-            const SizedBox(height: 20),
-            InkWell(
-              borderRadius: BorderRadius.circular(12),
-              onTap: () => setState(() => _isPrimary = !_isPrimary),
-              child: Row(
-                children: [
-                  Checkbox(
-                    value: _isPrimary,
-                    onChanged: (value) {
-                      setState(() => _isPrimary = value ?? false);
-                    },
-                    shape: const CircleBorder(),
-                    side: const BorderSide(color: SakuColors.neutral300),
-                    activeColor: SakuColors.blue300,
-                  ),
-                  const SizedBox(width: 4),
-                  const Expanded(
-                    child: Text(
-                      'Jadikan Dompet Utama',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: SakuColors.neutral300,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _WalletDialogField(
+                      label: 'Pilih Icon',
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(28),
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content:
+                                  Text('Pilihan icon tersedia di versi demo'),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          height: 51,
+                          decoration: BoxDecoration(
+                            color: SakuColors.white,
+                            borderRadius: BorderRadius.circular(28),
+                            border: Border.all(color: SakuColors.neutral300),
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.account_balance_wallet_rounded,
+                                color: SakuColors.mango500,
+                              ),
+                              SizedBox(width: 16),
+                              Icon(
+                                Icons.keyboard_arrow_down_rounded,
+                                color: SakuColors.black,
+                                size: 27,
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 46),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: SakuColors.mango500,
-                      side: const BorderSide(
-                        color: SakuColors.mango500,
-                        width: 2.4,
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28),
+              const SizedBox(height: 20),
+              _WalletDialogField(
+                label: 'Saldo Awal',
+                child: TextField(
+                  controller: _balanceController,
+                  keyboardType: TextInputType.number,
+                  decoration: _walletInputDecoration('Masukkan saldo awal..'),
+                ),
+              ),
+              const SizedBox(height: 12),
+              InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () => setState(() => _isPrimary = !_isPrimary),
+                child: Row(
+                  children: [
+                    Checkbox(
+                      value: _isPrimary,
+                      onChanged: (value) {
+                        setState(() => _isPrimary = value ?? false);
+                      },
+                      shape: const CircleBorder(),
+                      side: const BorderSide(color: SakuColors.neutral300),
+                      activeColor: SakuColors.blue300,
+                    ),
+                    const Expanded(
+                      child: Text(
+                        'Jadikan Dompet Utama',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: SakuColors.neutral300,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
-                    child: const Text(
-                      'Batal',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,
+                  ],
+                ),
+              ),
+              const SizedBox(height: 22),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: SakuColors.mango500,
+                        side: const BorderSide(
+                          color: SakuColors.mango500,
+                          width: 2.4,
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(28),
+                        ),
+                      ),
+                      child: const Text(
+                        'Batal',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w900,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 26),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: _save,
-                    style: FilledButton.styleFrom(
-                      backgroundColor: SakuColors.blue300,
-                      foregroundColor: SakuColors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 17),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: _save,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: SakuColors.blue300,
+                        foregroundColor: SakuColors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(28),
+                        ),
                       ),
-                    ),
-                    child: const Text(
-                      'Simpan',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,
+                      child: const Text(
+                        'Simpan',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w900,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -992,7 +999,7 @@ class _WalletDialogField extends StatelessWidget {
           label,
           style: const TextStyle(
             color: SakuColors.black,
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: FontWeight.w800,
           ),
         ),
@@ -1008,7 +1015,7 @@ InputDecoration _walletInputDecoration(String hintText) {
     hintText: hintText,
     filled: true,
     fillColor: SakuColors.white,
-    contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(28),
       borderSide: const BorderSide(color: SakuColors.neutral300),

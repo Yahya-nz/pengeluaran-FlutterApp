@@ -48,6 +48,7 @@ class DashboardTransaction {
     required this.title,
     required this.note,
     required this.amountValue,
+    required this.date,
     required this.time,
     required this.icon,
     required this.color,
@@ -57,6 +58,7 @@ class DashboardTransaction {
   final String title;
   final String note;
   final int amountValue;
+  final String date;
   final String time;
   final IconData icon;
   final Color color;
@@ -71,6 +73,7 @@ class DashboardTransaction {
     String? title,
     String? note,
     int? amountValue,
+    String? date,
     String? time,
     IconData? icon,
     Color? color,
@@ -80,6 +83,7 @@ class DashboardTransaction {
       title: title ?? this.title,
       note: note ?? this.note,
       amountValue: amountValue ?? this.amountValue,
+      date: date ?? this.date,
       time: time ?? this.time,
       icon: icon ?? this.icon,
       color: color ?? this.color,
@@ -264,6 +268,7 @@ const _initialTransactions = [
     title: 'Makanan',
     note: 'Beli jajan kopi sama temen',
     amountValue: -30000,
+    date: '18 April 2026',
     time: '11:55 AM',
     icon: Icons.restaurant_rounded,
     color: SakuColors.danger,
@@ -272,6 +277,7 @@ const _initialTransactions = [
     title: 'Hadiah',
     note: 'THR dari bos',
     amountValue: 30000,
+    date: '18 April 2026',
     time: '11:55 AM',
     icon: Icons.card_giftcard_rounded,
     color: SakuColors.success,
@@ -280,6 +286,7 @@ const _initialTransactions = [
     title: 'Transportasi',
     note: 'Bensin pulang kampus',
     amountValue: -45000,
+    date: '17 April 2026',
     time: '09:20 AM',
     icon: Icons.directions_car_rounded,
     color: SakuColors.danger,
