@@ -192,7 +192,7 @@ class _BalanceCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: SakuColors.white,
-                    fontSize: 23,
+                    fontSize: 20,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -215,7 +215,7 @@ class _BalanceCard extends StatelessWidget {
                   'Total Saldo',
                   style: TextStyle(
                     color: SakuColors.white,
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -243,7 +243,7 @@ class _BalanceCard extends StatelessWidget {
                 '12.000.000',
                 style: TextStyle(
                   color: SakuColors.neutral700,
-                  fontSize: 28,
+                  fontSize: 24,
                   fontWeight: FontWeight.w900,
                 ),
               ),
@@ -314,7 +314,7 @@ class _HeroMetric extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   color: SakuColors.black,
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -326,7 +326,7 @@ class _HeroMetric extends StatelessWidget {
                   amount,
                   style: const TextStyle(
                     color: SakuColors.black,
-                    fontSize: 18,
+                    fontSize: 16,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -435,7 +435,7 @@ class _ToolShortcut extends StatelessWidget {
               maxLines: 1,
               style: const TextStyle(
                 color: SakuColors.black,
-                fontSize: 15,
+                fontSize: 13,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -469,7 +469,7 @@ class _RecentNotesCard extends StatelessWidget {
                 'Catatan Terakhir',
                 style: TextStyle(
                   color: SakuColors.black,
-                  fontSize: 21,
+                  fontSize: 18,
                   fontWeight: FontWeight.w900,
                 ),
               ),
@@ -484,7 +484,7 @@ class _RecentNotesCard extends StatelessWidget {
                   '18',
                   style: TextStyle(
                     color: SakuColors.black,
-                    fontSize: 39,
+                    fontSize: 32,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -497,7 +497,7 @@ class _RecentNotesCard extends StatelessWidget {
                         'April',
                         style: TextStyle(
                           color: SakuColors.black,
-                          fontSize: 20,
+                          fontSize: 18,
                           fontWeight: FontWeight.w900,
                         ),
                       ),
@@ -505,7 +505,7 @@ class _RecentNotesCard extends StatelessWidget {
                         'Sabtu',
                         style: TextStyle(
                           color: SakuColors.neutral300,
-                          fontSize: 17,
+                          fontSize: 15,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -516,7 +516,7 @@ class _RecentNotesCard extends StatelessWidget {
                   '11.970.000',
                   style: TextStyle(
                     color: SakuColors.neutral700,
-                    fontSize: 19,
+                    fontSize: 17,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -587,7 +587,7 @@ class _ActiveDebtCard extends StatelessWidget {
             'Hutang Aktif',
             style: TextStyle(
               color: SakuColors.black,
-              fontSize: 21,
+              fontSize: 18,
               fontWeight: FontWeight.w900,
             ),
           ),
@@ -653,7 +653,7 @@ class _DebtTile extends StatelessWidget {
                     text: title,
                     style: const TextStyle(
                       color: SakuColors.black,
-                      fontSize: 20,
+                      fontSize: 18,
                       fontWeight: FontWeight.w900,
                     ),
                     children: const [
@@ -696,7 +696,7 @@ class _DebtTile extends StatelessWidget {
                     amount,
                     style: const TextStyle(
                       color: SakuColors.black,
-                      fontSize: 20,
+                      fontSize: 18,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
