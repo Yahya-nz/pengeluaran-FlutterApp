@@ -1,6 +1,4 @@
 import 'dashboard_shared.dart';
-import '../../auth/google_auth_service.dart';
-import '../../auth/login_page.dart';
 import 'history_page.dart';
 
 class HomeDashboard extends StatelessWidget {
@@ -26,13 +24,6 @@ class HomeDashboard extends StatelessWidget {
       children: [
         _HomeHeroSection(
           userName: userName,
-          onLogout: () async {
-            await GoogleAuthService.instance.signOut();
-            if (!context.mounted) return;
-            Navigator.of(context).pushReplacementNamed(
-              LoginPage.routeName,
-            );
-          },
           onOpenBudget: onOpenBudget,
           onOpenInsight: onOpenInsight,
         ),
@@ -48,13 +39,11 @@ class HomeDashboard extends StatelessWidget {
 class _HomeHeroSection extends StatelessWidget {
   const _HomeHeroSection({
     required this.userName,
-    required this.onLogout,
     required this.onOpenBudget,
     required this.onOpenInsight,
   });
 
   final String userName;
-  final VoidCallback onLogout;
   final VoidCallback onOpenBudget;
   final VoidCallback onOpenInsight;
 
@@ -101,7 +90,6 @@ class _HomeHeroSection extends StatelessWidget {
             top: 36,
             child: _BalanceCard(
               userName: userName,
-              onLogout: onLogout,
             ),
           ),
           Positioned(
@@ -150,11 +138,9 @@ class _HomeBodyPanel extends StatelessWidget {
 class _BalanceCard extends StatelessWidget {
   const _BalanceCard({
     required this.userName,
-    required this.onLogout,
   });
 
   final String userName;
-  final VoidCallback onLogout;
 
   @override
   Widget build(BuildContext context) {
@@ -196,14 +182,6 @@ class _BalanceCard extends StatelessWidget {
                     fontWeight: FontWeight.w900,
                   ),
                 ),
-              ),
-              IconButton(
-                onPressed: onLogout,
-                style: IconButton.styleFrom(
-                  backgroundColor: SakuColors.white.withValues(alpha: 0.18),
-                  foregroundColor: SakuColors.white,
-                ),
-                icon: const Icon(Icons.logout_rounded),
               ),
             ],
           ),
