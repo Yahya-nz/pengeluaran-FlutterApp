@@ -288,65 +288,260 @@ class _TransactionDetailDialog extends StatelessWidget {
       );
     }
 
+    return _StandardTransactionDetailDialog(
+      item: item,
+      onDelete: onDelete,
+      onEdit: onEdit,
+    );
+  }
+}
+
+class _StandardTransactionDetailDialog extends StatelessWidget {
+  const _StandardTransactionDetailDialog({
+    required this.item,
+    required this.onDelete,
+    required this.onEdit,
+  });
+
+  final DashboardTransaction item;
+  final VoidCallback onDelete;
+  final VoidCallback onEdit;
+
+  bool get _isExpense => item.amountValue < 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final categoryAssetPath = categoryAsset(item.title);
     return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 18),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      backgroundColor: SakuColors.white,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircleAvatar(
-              radius: 32,
-              backgroundColor: item.color.withValues(alpha: 0.12),
-              child: Icon(item.icon, color: item.color, size: 34),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      backgroundColor: Colors.transparent,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(18, 17, 18, 18),
+            decoration: BoxDecoration(
+              color: SakuColors.white,
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: SakuColors.black.withValues(alpha: 0.12),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
-            const SizedBox(height: 14),
-            Text(
-              item.title,
-              style: const TextStyle(
-                color: SakuColors.black,
-                fontSize: 24,
-                fontWeight: FontWeight.w900,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _isExpense ? 'Pengeluaran' : 'Pemasukan',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: SakuColors.black,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0,
+                            ),
+                          ),
+                          Text(
+                            'Selasa, ${item.date}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: SakuColors.neutral300,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    SizedBox(
+                      width: 116,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          'Rp ${formatPlain(item.amountValue.abs())}',
+                          maxLines: 1,
+                          style: const TextStyle(
+                            color: SakuColors.neutral300,
+                            fontSize: 28,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 13),
+                const _DashedSeparator(),
+                const SizedBox(height: 14),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: _TransactionDetailColumn(
+                        label: 'Catatan',
+                        value: item.note,
+                        alignment: CrossAxisAlignment.start,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    const _TransactionDetailColumn(
+                      label: 'Cash',
+                      alignment: CrossAxisAlignment.center,
+                      child: _LoanWalletIcon(),
+                    ),
+                    const SizedBox(width: 18),
+                    _TransactionDetailColumn(
+                      label: item.title,
+                      alignment: CrossAxisAlignment.center,
+                      child: _CategoryDetailIcon(
+                        icon: item.icon,
+                        color: item.color,
+                        assetPath: categoryAssetPath,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            const SizedBox(height: 6),
-            Text(
-              item.amount,
-              style: TextStyle(
-                color: item.color,
-                fontSize: 22,
-                fontWeight: FontWeight.w900,
-              ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: SakuColors.white,
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: SakuColors.black.withValues(alpha: 0.10),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-            const SizedBox(height: 18),
-            _DetailLine(label: 'Catatan', value: item.note),
-            _DetailLine(label: 'Waktu', value: item.time),
-            const _DetailLine(label: 'Dompet', value: 'BSI'),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: () => Navigator.of(context).pop(),
-                style: FilledButton.styleFrom(
-                  backgroundColor: SakuColors.blue300,
-                  foregroundColor: SakuColors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
+            child: Row(
+              children: [
+                IconButton(
+                  tooltip: 'Hapus',
+                  onPressed: onDelete,
+                  icon: const Icon(Icons.delete_rounded, color: Colors.red),
+                ),
+                IconButton(
+                  tooltip: 'Edit',
+                  onPressed: onEdit,
+                  icon:
+                      const Icon(Icons.edit_rounded, color: SakuColors.blue700),
+                ),
+                const Spacer(),
+                IconButton(
+                  tooltip: 'Tutup',
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(
+                    Icons.check_rounded,
+                    color: Colors.green,
+                    size: 30,
                   ),
                 ),
-                child: const Text(
-                  'Tutup',
-                  style: TextStyle(fontWeight: FontWeight.w900),
-                ),
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
+  }
+}
+
+class _TransactionDetailColumn extends StatelessWidget {
+  const _TransactionDetailColumn({
+    required this.label,
+    this.value,
+    this.child,
+    this.alignment = CrossAxisAlignment.start,
+  });
+
+  final String label;
+  final String? value;
+  final Widget? child;
+  final CrossAxisAlignment alignment;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: alignment,
+      children: [
+        Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            color: SakuColors.black,
+            fontSize: 15,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 0,
+          ),
+        ),
+        const SizedBox(height: 4),
+        if (child != null)
+          child!
+        else
+          Text(
+            value ?? '',
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: SakuColors.neutral300,
+              fontSize: 15,
+              height: 1.12,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _CategoryDetailIcon extends StatelessWidget {
+  const _CategoryDetailIcon({
+    required this.icon,
+    required this.color,
+    required this.assetPath,
+  });
+
+  final IconData icon;
+  final Color color;
+  final String? assetPath;
+
+  @override
+  Widget build(BuildContext context) {
+    if (assetPath != null) {
+      return Image.asset(
+        assetPath!,
+        width: 34,
+        height: 34,
+        fit: BoxFit.contain,
+      );
+    }
+
+    return Icon(icon, color: color, size: 32);
   }
 }
 
@@ -803,44 +998,6 @@ class _LoanWalletIcon extends StatelessWidget {
                     size: 6,
                   ),
                 ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DetailLine extends StatelessWidget {
-  const _DetailLine({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 88,
-            child: Text(
-              label,
-              style: const TextStyle(
-                color: SakuColors.neutral300,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              textAlign: TextAlign.right,
-              style: const TextStyle(
-                color: SakuColors.black,
-                fontWeight: FontWeight.w800,
               ),
             ),
           ),
