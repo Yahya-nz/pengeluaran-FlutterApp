@@ -316,6 +316,6 @@ void _setMobileViewport(WidgetTester tester) {
 }
 
 Future<void> _pumpPastSplash(WidgetTester tester) async {
-  await tester.pump(const Duration(milliseconds: 1300));
+  await tester.pump(const Duration(milliseconds: 1900));
   await tester.pumpAndSettle();
 }
