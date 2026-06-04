@@ -471,58 +471,78 @@ class _LoanDetailDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final person = item.note
-        .replaceFirst('Pinjaman ke ', '')
-        .replaceFirst('Minjam uang ke ', '')
-        .trim();
+    final person = _loanPersonName(item.note);
+    final note = _loanNote(item.note, person);
 
     return Dialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 20),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       backgroundColor: Colors.transparent,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
             decoration: BoxDecoration(
               color: SakuColors.white,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: SakuColors.black.withValues(alpha: 0.12),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: Wrap(
-                        spacing: 8,
-                        crossAxisAlignment: WrapCrossAlignment.center,
+                      child: Row(
                         children: [
-                          const Text(
-                            'Beri Pinjaman',
-                            style: TextStyle(
-                              color: SakuColors.black,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w900,
+                          const Expanded(
+                            child: Text(
+                              'Beri Pinjaman',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: SakuColors.black,
+                                fontSize: 22,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0,
+                              ),
                             ),
                           ),
+                          const SizedBox(width: 8),
                           _PaidBadge(settled: item.settled),
                         ],
                       ),
                     ),
-                    Text(
-                      'Rp ${formatPlain(item.amountValue.abs())}',
-                      style: const TextStyle(
-                        color: SakuColors.neutral300,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
+                    const SizedBox(width: 10),
+                    SizedBox(
+                      width: 118,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerRight,
+                        child: Text(
+                          'Rp ${formatPlain(item.amountValue.abs())}',
+                          maxLines: 1,
+                          style: const TextStyle(
+                            color: SakuColors.neutral300,
+                            fontSize: 27,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0,
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 2),
                 const Row(
                   children: [
                     Icon(
@@ -535,18 +555,16 @@ class _LoanDetailDialog extends StatelessWidget {
                       '30 April 2026',
                       style: TextStyle(
                         color: SakuColors.neutral300,
+                        fontSize: 17,
                         fontWeight: FontWeight.w700,
+                        fontStyle: FontStyle.italic,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 14),
-                const Divider(
-                  color: SakuColors.neutral300,
-                  thickness: 3,
-                  height: 1,
-                ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 18),
+                const _DashedSeparator(),
+                const SizedBox(height: 18),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -557,56 +575,61 @@ class _LoanDetailDialog extends StatelessWidget {
                           const Text(
                             'Nama',
                             style: TextStyle(
-                              color: SakuColors.neutral600,
-                              fontSize: 15,
+                              color: SakuColors.black,
+                              fontSize: 17,
                               fontWeight: FontWeight.w900,
+                              letterSpacing: 0,
                             ),
                           ),
                           Text(
                             person.isEmpty ? 'Nama' : person,
                             style: const TextStyle(
                               color: SakuColors.neutral300,
-                              fontSize: 15,
+                              fontSize: 17,
                               fontWeight: FontWeight.w700,
+                              letterSpacing: 0,
                             ),
                           ),
-                          const SizedBox(height: 5),
+                          const SizedBox(height: 6),
                           const Text(
                             'Catatan',
                             style: TextStyle(
-                              color: SakuColors.neutral600,
-                              fontSize: 15,
+                              color: SakuColors.black,
+                              fontSize: 17,
                               fontWeight: FontWeight.w900,
+                              letterSpacing: 0,
                             ),
                           ),
                           Text(
-                            item.note,
+                            note,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               color: SakuColors.neutral300,
-                              fontSize: 15,
+                              fontSize: 17,
                               fontWeight: FontWeight.w700,
+                              height: 1.15,
+                              letterSpacing: 0,
                             ),
                           ),
                         ],
                       ),
                     ),
+                    const SizedBox(width: 14),
                     const Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
                           'Cash',
                           style: TextStyle(
-                            color: SakuColors.neutral600,
-                            fontSize: 15,
+                            color: SakuColors.black,
+                            fontSize: 17,
                             fontWeight: FontWeight.w900,
+                            letterSpacing: 0,
                           ),
                         ),
-                        SizedBox(height: 10),
-                        Icon(
-                          Icons.account_balance_wallet_rounded,
-                          color: SakuColors.mango500,
-                          size: 32,
-                        ),
+                        SizedBox(height: 8),
+                        _LoanWalletIcon(),
                       ],
                     ),
                   ],
@@ -617,10 +640,17 @@ class _LoanDetailDialog extends StatelessWidget {
           const SizedBox(height: 8),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: SakuColors.white,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: SakuColors.black.withValues(alpha: 0.10),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Row(
               children: [
@@ -652,6 +682,22 @@ class _LoanDetailDialog extends StatelessWidget {
       ),
     );
   }
+
+  String _loanPersonName(String source) {
+    final cleaned = source
+        .replaceFirst(RegExp(r'^Pinjaman ke\s+', caseSensitive: false), '')
+        .replaceFirst(RegExp(r'^Minjam uang ke\s+', caseSensitive: false), '')
+        .trim();
+    return cleaned.isEmpty ? 'Anisa' : cleaned;
+  }
+
+  String _loanNote(String source, String person) {
+    final lower = source.toLowerCase();
+    if (source.trim().isEmpty || lower.startsWith('pinjaman ke')) {
+      return 'Minjam uang ke\n${person.toLowerCase()}';
+    }
+    return source;
+  }
 }
 
 class _PaidBadge extends StatelessWidget {
@@ -674,9 +720,93 @@ class _PaidBadge extends StatelessWidget {
         settled ? 'Lunas' : 'Belum Lunas',
         style: TextStyle(
           color: settled ? SakuColors.success : SakuColors.neutral600,
-          fontSize: 10,
+          fontSize: 11,
           fontWeight: FontWeight.w900,
         ),
+      ),
+    );
+  }
+}
+
+class _DashedSeparator extends StatelessWidget {
+  const _DashedSeparator();
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const dashWidth = 18.0;
+        const gap = 12.0;
+        final count = (constraints.maxWidth / (dashWidth + gap)).floor();
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(
+            count,
+            (index) => Container(
+              width: dashWidth,
+              height: 3,
+              margin: EdgeInsets.only(right: index == count - 1 ? 0 : gap),
+              decoration: BoxDecoration(
+                color: SakuColors.neutral300,
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _LoanWalletIcon extends StatelessWidget {
+  const _LoanWalletIcon();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 36,
+      height: 31,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Positioned(
+            right: 1,
+            top: 2,
+            child: Container(
+              width: 22,
+              height: 24,
+              decoration: BoxDecoration(
+                color: const Color(0xFFE09B33),
+                border: Border.all(color: SakuColors.black, width: 1.4),
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 3,
+            top: 5,
+            child: Container(
+              width: 25,
+              height: 24,
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFC14E),
+                border: Border.all(color: SakuColors.black, width: 1.4),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: EdgeInsets.only(right: 3),
+                  child: Icon(
+                    Icons.circle,
+                    color: SakuColors.mango500,
+                    size: 6,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
