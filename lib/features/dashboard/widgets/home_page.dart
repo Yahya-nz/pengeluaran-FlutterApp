@@ -553,15 +553,22 @@ class _RecentNotesCard extends StatelessWidget {
 class _ActiveDebtCard extends StatelessWidget {
   const _ActiveDebtCard();
 
+  void _openPaymentDialog(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => const _HomeDebtPaymentDialog(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: cardDecoration(radius: 18),
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 6),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Hutang Aktif',
             style: TextStyle(
               color: SakuColors.black,
@@ -569,19 +576,21 @@ class _ActiveDebtCard extends StatelessWidget {
               fontWeight: FontWeight.w900,
             ),
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _DebtTile(
             title: 'Hutang',
             person: 'Anisa',
             amount: '30.000',
             due: '30 April 2026',
+            onTap: () => _openPaymentDialog(context),
           ),
-          Divider(height: 1, color: SakuColors.neutral100),
+          const Divider(height: 1, color: SakuColors.neutral100),
           _DebtTile(
-            title: 'Beri Pinjaman',
-            person: 'Nadia',
-            amount: '20.000',
-            due: '02 Mei 2026',
+            title: 'Hutang',
+            person: 'Anisa',
+            amount: '30.000',
+            due: '30 April 2026',
+            onTap: () => _openPaymentDialog(context),
           ),
         ],
       ),
@@ -595,106 +604,237 @@ class _DebtTile extends StatelessWidget {
     required this.person,
     required this.amount,
     required this.due,
+    required this.onTap,
   });
 
   final String title;
   final String person;
   final String amount;
   final String due;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: SakuColors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: SakuColors.neutral300, width: 1.5),
-            ),
-            child: const Icon(
-              Icons.payments_outlined,
-              color: SakuColors.sage500,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text.rich(
-                  TextSpan(
-                    text: title,
-                    style: const TextStyle(
-                      color: SakuColors.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                    ),
-                    children: const [
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: SakuColors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: SakuColors.neutral300, width: 1.5),
+                ),
+                child: const Icon(
+                  Icons.payments_outlined,
+                  color: SakuColors.sage500,
+                  size: 25,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text.rich(
                       TextSpan(
-                        text: ' Belum Lunas',
-                        style: TextStyle(
-                          color: SakuColors.danger,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
+                        text: title,
+                        style: const TextStyle(
+                          color: SakuColors.black,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0,
+                        ),
+                        children: const [
+                          TextSpan(
+                            text: ' Belum Lunas',
+                            style: TextStyle(
+                              color: SakuColors.danger,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0,
+                            ),
+                          ),
+                        ],
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '$person - minjam uang',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: SakuColors.neutral300,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              SizedBox(
+                width: 82,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        amount,
+                        style: const TextStyle(
+                          color: SakuColors.black,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0,
                         ),
                       ),
-                    ],
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        due,
+                        style: const TextStyle(
+                          color: SakuColors.neutral300,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  '$person - jatuh tempo',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: SakuColors.neutral300,
-                    fontWeight: FontWeight.w700,
-                  ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: SakuColors.white,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: SakuColors.neutral300, width: 2),
                 ),
-              ],
-            ),
+                child: const Icon(
+                  Icons.check_rounded,
+                  color: SakuColors.neutral300,
+                  size: 21,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 8),
-          SizedBox(
-            width: 96,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
+        ),
+      ),
+    );
+  }
+}
+
+class _HomeDebtPaymentDialog extends StatelessWidget {
+  const _HomeDebtPaymentDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 22),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      backgroundColor: SakuColors.white,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(18, 22, 18, 18),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Bayar hutang dari dompet mana?',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: SakuColors.black,
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0,
+              ),
+            ),
+            const SizedBox(height: 18),
+            const Row(
               children: [
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    amount,
-                    style: const TextStyle(
-                      color: SakuColors.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
+                Expanded(
+                  child: DialogSelectField(
+                    label: 'Dompet',
+                    value: 'BSI',
+                    icon: Icons.credit_card_rounded,
+                    trailing: Icons.keyboard_arrow_down_rounded,
+                  ),
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: DialogSelectField(
+                    label: 'Tanggal Lunas',
+                    value: '12 Juni 2026',
+                    icon: null,
+                    trailing: Icons.calendar_month_rounded,
+                    muted: true,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: SakuColors.mango500,
+                      side: const BorderSide(
+                        color: SakuColors.mango500,
+                        width: 2,
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(26),
+                      ),
+                    ),
+                    child: const Text(
+                      'Kembali',
+                      style: TextStyle(fontWeight: FontWeight.w900),
                     ),
                   ),
                 ),
-                const SizedBox(height: 4),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    due,
-                    style: const TextStyle(
-                      color: SakuColors.neutral300,
-                      fontWeight: FontWeight.w700,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: SakuColors.neutral300,
+                      foregroundColor: SakuColors.neutral600,
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(26),
+                      ),
+                    ),
+                    child: const Text(
+                      'Lunas',
+                      style: TextStyle(fontWeight: FontWeight.w900),
                     ),
                   ),
                 ),
               ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
