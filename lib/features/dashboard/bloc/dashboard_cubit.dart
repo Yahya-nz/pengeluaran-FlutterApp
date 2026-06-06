@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:home_widget/home_widget.dart';
 
+import '../../../core/api/laravel_api_service.dart';
 import '../../../core/theme/app_colors.dart';
 
 enum DashboardSurface {
@@ -53,6 +54,8 @@ class DashboardTransaction {
     required this.icon,
     required this.color,
     this.settled = false,
+    this.apiId,
+    this.apiType,
   });
 
   final String title;
@@ -63,6 +66,8 @@ class DashboardTransaction {
   final IconData icon;
   final Color color;
   final bool settled;
+  final int? apiId;
+  final String? apiType;
 
   String get amount {
     final sign = amountValue < 0 ? '-' : '+';
@@ -78,6 +83,8 @@ class DashboardTransaction {
     IconData? icon,
     Color? color,
     bool? settled,
+    Object? apiId = _noValue,
+    Object? apiType = _noValue,
   }) {
     return DashboardTransaction(
       title: title ?? this.title,
@@ -88,6 +95,8 @@ class DashboardTransaction {
       icon: icon ?? this.icon,
       color: color ?? this.color,
       settled: settled ?? this.settled,
+      apiId: apiId == _noValue ? this.apiId : apiId as int?,
+      apiType: apiType == _noValue ? this.apiType : apiType as String?,
     );
   }
 }
@@ -187,6 +196,7 @@ class DashboardCubit extends Cubit<DashboardState> {
       ),
     );
     syncHomeWidget();
+    _syncTransactionToApi(item);
   }
 
   void addBudget(DashboardBudget item) {
@@ -209,6 +219,9 @@ class DashboardCubit extends Cubit<DashboardState> {
         .toList();
     emit(state.copyWith(transactions: updated));
     syncHomeWidget();
+    LaravelApiService.instance
+        .markSettled(apiId: item.apiId, apiType: item.apiType)
+        .catchError((_) {});
   }
 
   void openEditTransaction(DashboardTransaction item) {
@@ -257,6 +270,31 @@ class DashboardCubit extends Cubit<DashboardState> {
       await HomeWidget.updateWidget(name: _homeWidgetProvider);
     } catch (_) {
       // Platform channel is not available on web and widget tests.
+    }
+  }
+
+  Future<void> _syncTransactionToApi(DashboardTransaction item) async {
+    try {
+      final synced = await LaravelApiService.instance.createTransaction(
+        LaravelTransactionDraft(
+          title: item.title,
+          note: item.note,
+          amountValue: item.amountValue,
+        ),
+      );
+      final updated = state.transactions
+          .map(
+            (entry) => entry == item
+                ? entry.copyWith(
+                    apiId: synced.apiId,
+                    apiType: synced.apiType,
+                  )
+                : entry,
+          )
+          .toList();
+      emit(state.copyWith(transactions: updated));
+    } catch (_) {
+      // UI remains local-first when the Laravel API is not reachable yet.
     }
   }
 }

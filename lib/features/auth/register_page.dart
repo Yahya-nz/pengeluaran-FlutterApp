@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/api/laravel_api_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../dashboard/dashboard_page.dart';
 import 'auth_actions.dart';
@@ -59,22 +60,29 @@ class _RegisterPageState extends State<RegisterPage> {
 
     setState(() => _isSubmitting = true);
     try {
-      final user = await GoogleAuthService.instance.registerWithEmail(
-        email: _emailController.text.trim(),
+      final email = _emailController.text.trim();
+      final auth = await LaravelApiService.instance.register(
+        name: _displayNameFromUser(null, email),
+        email: email,
         password: _passwordController.text,
       );
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => DashboardPage(
-            userName: _displayNameFromUser(user.displayName, user.email),
-            userEmail: user.email ?? _emailController.text.trim(),
+            userName: auth.user.name,
+            userEmail: auth.user.email,
           ),
         ),
       );
-    } on GoogleAuthSetupException catch (error) {
+    } on LaravelApiException catch (error) {
       if (!mounted) return;
       _showGoogleAuthMessage(error.message);
+    } catch (_) {
+      if (!mounted) return;
+      _showGoogleAuthMessage(
+        'API Laravel belum bisa dihubungi. Pastikan backend sudah berjalan.',
+      );
     } finally {
       if (mounted) {
         setState(() => _isSubmitting = false);

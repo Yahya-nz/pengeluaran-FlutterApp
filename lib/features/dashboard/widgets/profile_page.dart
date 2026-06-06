@@ -1,4 +1,5 @@
 import 'dashboard_shared.dart';
+import '../../../core/api/laravel_api_service.dart';
 import '../../auth/google_auth_service.dart';
 import '../../auth/login_page.dart';
 
@@ -160,6 +161,7 @@ class ProfileDashboardState extends State<ProfileDashboard> {
                 iconColor: SakuColors.mango500,
                 trailing: Icons.chevron_right_rounded,
                 onTap: () async {
+                  await LaravelApiService.instance.logout();
                   await GoogleAuthService.instance.signOut();
                   if (!context.mounted) return;
                   Navigator.of(context)
