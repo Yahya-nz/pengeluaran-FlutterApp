@@ -69,11 +69,11 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          DashboardCubit(openAddNote: widget.openAddNote)..syncHomeWidget(),
-      child: BlocBuilder<DashboardCubit, DashboardState>(
+      create: (_) => DashboardBloc(openAddNote: widget.openAddNote)
+        ..add(const DashboardStarted()),
+      child: BlocBuilder<DashboardBloc, DashboardState>(
         builder: (context, state) {
-          final cubit = context.read<DashboardCubit>();
+          final bloc = context.read<DashboardBloc>();
           return Scaffold(
             backgroundColor: SakuColors.neutral50,
             body: SafeArea(
@@ -106,14 +106,14 @@ class _DashboardPageState extends State<DashboardPage> {
                           context: context,
                           builder: (context) => BudgetFormDialog(
                             onSave: (item) {
-                              cubit.addBudget(item);
+                              bloc.add(DashboardBudgetAdded(item));
                               Navigator.of(context).pop();
                             },
                           ),
                         );
                         return;
                       }
-                      cubit.showAddNote();
+                      bloc.add(const DashboardAddNoteShown());
                     },
                     backgroundColor: SakuColors.mango500,
                     foregroundColor: SakuColors.white,
@@ -132,7 +132,9 @@ class _DashboardPageState extends State<DashboardPage> {
                         width: 430,
                         child: NavigationBar(
                           selectedIndex: state.currentIndex,
-                          onDestinationSelected: cubit.selectTab,
+                          onDestinationSelected: (index) {
+                            bloc.add(DashboardTabSelected(index));
+                          },
                           indicatorColor: SakuColors.blue100,
                           destinations: const [
                             NavigationDestination(

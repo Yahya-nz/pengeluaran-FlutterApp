@@ -167,78 +167,202 @@ class DashboardState {
   }
 }
 
-class DashboardCubit extends Cubit<DashboardState> {
-  DashboardCubit({bool openAddNote = false})
-      : super(DashboardState.initial(openAddNote: openAddNote));
+sealed class DashboardEvent {
+  const DashboardEvent();
+}
+
+class DashboardStarted extends DashboardEvent {
+  const DashboardStarted();
+}
+
+class DashboardMainShown extends DashboardEvent {
+  const DashboardMainShown();
+}
+
+class DashboardSurfaceShown extends DashboardEvent {
+  const DashboardSurfaceShown(this.surface);
+
+  final DashboardSurface surface;
+}
+
+class DashboardAddNoteShown extends DashboardEvent {
+  const DashboardAddNoteShown([this.mode = AddNoteMode.expense]);
+
+  final AddNoteMode mode;
+}
+
+class DashboardTabSelected extends DashboardEvent {
+  const DashboardTabSelected(this.index);
+
+  final int index;
+}
+
+class DashboardTransactionAdded extends DashboardEvent {
+  const DashboardTransactionAdded(this.item);
+
+  final DashboardTransaction item;
+}
+
+class DashboardBudgetAdded extends DashboardEvent {
+  const DashboardBudgetAdded(this.item);
+
+  final DashboardBudget item;
+}
+
+class DashboardTransactionDeleted extends DashboardEvent {
+  const DashboardTransactionDeleted(this.item);
+
+  final DashboardTransaction item;
+}
+
+class DashboardTransactionSettled extends DashboardEvent {
+  const DashboardTransactionSettled(this.item);
+
+  final DashboardTransaction item;
+}
+
+class DashboardEditTransactionOpened extends DashboardEvent {
+  const DashboardEditTransactionOpened(this.item);
+
+  final DashboardTransaction item;
+}
+
+class DashboardTransactionUpdated extends DashboardEvent {
+  const DashboardTransactionUpdated({
+    required this.oldItem,
+    required this.newItem,
+  });
+
+  final DashboardTransaction oldItem;
+  final DashboardTransaction newItem;
+}
+
+class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
+  DashboardBloc({bool openAddNote = false})
+      : super(DashboardState.initial(openAddNote: openAddNote)) {
+    on<DashboardStarted>(_onStarted);
+    on<DashboardMainShown>(_onMainShown);
+    on<DashboardSurfaceShown>(_onSurfaceShown);
+    on<DashboardAddNoteShown>(_onAddNoteShown);
+    on<DashboardTabSelected>(_onTabSelected);
+    on<DashboardTransactionAdded>(_onTransactionAdded);
+    on<DashboardBudgetAdded>(_onBudgetAdded);
+    on<DashboardTransactionDeleted>(_onTransactionDeleted);
+    on<DashboardTransactionSettled>(_onTransactionSettled);
+    on<DashboardEditTransactionOpened>(_onEditTransactionOpened);
+    on<DashboardTransactionUpdated>(_onTransactionUpdated);
+  }
 
   static const _homeWidgetProvider = 'SakuSummaryWidgetProvider';
 
-  void showMain() => emit(state.copyWith(surface: DashboardSurface.main));
-
-  void showSurface(DashboardSurface surface) {
-    emit(state.copyWith(surface: surface));
+  Future<void> _onStarted(
+    DashboardStarted event,
+    Emitter<DashboardState> emit,
+  ) async {
+    await _syncHomeWidget();
   }
 
-  void showAddNote([AddNoteMode mode = AddNoteMode.expense]) {
-    emit(state.copyWith(surface: surfaceForMode(mode)));
+  void _onMainShown(
+    DashboardMainShown event,
+    Emitter<DashboardState> emit,
+  ) {
+    emit(state.copyWith(surface: DashboardSurface.main));
   }
 
-  void selectTab(int index) {
-    emit(state.copyWith(currentIndex: index));
+  void _onSurfaceShown(
+    DashboardSurfaceShown event,
+    Emitter<DashboardState> emit,
+  ) {
+    emit(state.copyWith(surface: event.surface));
   }
 
-  void addTransaction(DashboardTransaction item) {
+  void _onAddNoteShown(
+    DashboardAddNoteShown event,
+    Emitter<DashboardState> emit,
+  ) {
+    emit(state.copyWith(surface: surfaceForMode(event.mode)));
+  }
+
+  void _onTabSelected(
+    DashboardTabSelected event,
+    Emitter<DashboardState> emit,
+  ) {
+    emit(state.copyWith(currentIndex: event.index));
+  }
+
+  Future<void> _onTransactionAdded(
+    DashboardTransactionAdded event,
+    Emitter<DashboardState> emit,
+  ) async {
     emit(
       state.copyWith(
-        transactions: [item, ...state.transactions],
+        transactions: [event.item, ...state.transactions],
         surface: DashboardSurface.main,
         currentIndex: 1,
       ),
     );
-    syncHomeWidget();
-    _syncTransactionToApi(item);
+    await _syncHomeWidget();
+    await _syncTransactionToApi(event.item, emit);
   }
 
-  void addBudget(DashboardBudget item) {
-    emit(state.copyWith(budgets: [item, ...state.budgets]));
+  void _onBudgetAdded(
+    DashboardBudgetAdded event,
+    Emitter<DashboardState> emit,
+  ) {
+    emit(state.copyWith(budgets: [event.item, ...state.budgets]));
   }
 
-  void deleteTransaction(DashboardTransaction item) {
+  Future<void> _onTransactionDeleted(
+    DashboardTransactionDeleted event,
+    Emitter<DashboardState> emit,
+  ) async {
     emit(
       state.copyWith(
         transactions:
-            state.transactions.where((entry) => entry != item).toList(),
+            state.transactions.where((entry) => entry != event.item).toList(),
       ),
     );
-    syncHomeWidget();
+    await _syncHomeWidget();
   }
 
-  void markTransactionSettled(DashboardTransaction item) {
+  Future<void> _onTransactionSettled(
+    DashboardTransactionSettled event,
+    Emitter<DashboardState> emit,
+  ) async {
     final updated = state.transactions
-        .map((entry) => entry == item ? entry.copyWith(settled: true) : entry)
+        .map((entry) =>
+            entry == event.item ? entry.copyWith(settled: true) : entry)
         .toList();
     emit(state.copyWith(transactions: updated));
-    syncHomeWidget();
-    LaravelApiService.instance
-        .markSettled(apiId: item.apiId, apiType: item.apiType)
-        .catchError((_) {});
+    await _syncHomeWidget();
+    try {
+      await LaravelApiService.instance.markSettled(
+        apiId: event.item.apiId,
+        apiType: event.item.apiType,
+      );
+    } catch (_) {
+      // The app remains local-first when the Laravel API is not reachable yet.
+    }
   }
 
-  void openEditTransaction(DashboardTransaction item) {
+  void _onEditTransactionOpened(
+    DashboardEditTransactionOpened event,
+    Emitter<DashboardState> emit,
+  ) {
     emit(
       state.copyWith(
-        editingTransaction: item,
+        editingTransaction: event.item,
         surface: DashboardSurface.editTransaction,
       ),
     );
   }
 
-  void updateTransaction(
-    DashboardTransaction oldItem,
-    DashboardTransaction newItem,
-  ) {
+  Future<void> _onTransactionUpdated(
+    DashboardTransactionUpdated event,
+    Emitter<DashboardState> emit,
+  ) async {
     final updated = state.transactions
-        .map((entry) => entry == oldItem ? newItem : entry)
+        .map((entry) => entry == event.oldItem ? event.newItem : entry)
         .toList();
     emit(
       state.copyWith(
@@ -248,10 +372,10 @@ class DashboardCubit extends Cubit<DashboardState> {
         currentIndex: 1,
       ),
     );
-    syncHomeWidget();
+    await _syncHomeWidget();
   }
 
-  Future<void> syncHomeWidget() async {
+  Future<void> _syncHomeWidget() async {
     try {
       await HomeWidget.saveWidgetData<String>(
         'balance',
@@ -273,7 +397,10 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
   }
 
-  Future<void> _syncTransactionToApi(DashboardTransaction item) async {
+  Future<void> _syncTransactionToApi(
+    DashboardTransaction item,
+    Emitter<DashboardState> emit,
+  ) async {
     try {
       final synced = await LaravelApiService.instance.createTransaction(
         LaravelTransactionDraft(

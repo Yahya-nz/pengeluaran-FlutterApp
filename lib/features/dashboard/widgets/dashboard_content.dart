@@ -25,65 +25,77 @@ class DashboardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cubit = context.read<DashboardCubit>();
+    final bloc = context.read<DashboardBloc>();
     return switch (state.surface) {
       DashboardSurface.budget => BudgetDashboard(
           budgets: state.budgets,
-          onBack: cubit.showMain,
+          onBack: () => bloc.add(const DashboardMainShown()),
         ),
-      DashboardSurface.insight => InsightDashboard(onBack: cubit.showMain),
+      DashboardSurface.insight => InsightDashboard(
+          onBack: () => bloc.add(const DashboardMainShown()),
+        ),
       DashboardSurface.notifications => NotificationsDashboard(
-          onBack: cubit.showMain,
+          onBack: () => bloc.add(const DashboardMainShown()),
         ),
       DashboardSurface.addExpense => AddNoteDashboard(
           mode: AddNoteMode.expense,
-          onBack: cubit.showMain,
-          onSwitchMode: cubit.showAddNote,
-          onSave: cubit.addTransaction,
+          onBack: () => bloc.add(const DashboardMainShown()),
+          onSwitchMode: (mode) => bloc.add(DashboardAddNoteShown(mode)),
+          onSave: (item) => bloc.add(DashboardTransactionAdded(item)),
         ),
       DashboardSurface.addIncome => AddNoteDashboard(
           mode: AddNoteMode.income,
-          onBack: cubit.showMain,
-          onSwitchMode: cubit.showAddNote,
-          onSave: cubit.addTransaction,
+          onBack: () => bloc.add(const DashboardMainShown()),
+          onSwitchMode: (mode) => bloc.add(DashboardAddNoteShown(mode)),
+          onSave: (item) => bloc.add(DashboardTransactionAdded(item)),
         ),
       DashboardSurface.addDebt => AddNoteDashboard(
           mode: AddNoteMode.debt,
-          onBack: cubit.showMain,
-          onSwitchMode: cubit.showAddNote,
-          onSave: cubit.addTransaction,
+          onBack: () => bloc.add(const DashboardMainShown()),
+          onSwitchMode: (mode) => bloc.add(DashboardAddNoteShown(mode)),
+          onSave: (item) => bloc.add(DashboardTransactionAdded(item)),
         ),
       DashboardSurface.addLoan => AddNoteDashboard(
           mode: AddNoteMode.loan,
-          onBack: cubit.showMain,
-          onSwitchMode: cubit.showAddNote,
-          onSave: cubit.addTransaction,
+          onBack: () => bloc.add(const DashboardMainShown()),
+          onSwitchMode: (mode) => bloc.add(DashboardAddNoteShown(mode)),
+          onSave: (item) => bloc.add(DashboardTransactionAdded(item)),
         ),
       DashboardSurface.editTransaction => EditTransactionDashboard(
           item: state.editingTransaction,
-          onBack: cubit.showMain,
-          onSave: cubit.updateTransaction,
+          onBack: () => bloc.add(const DashboardMainShown()),
+          onSave: (oldItem, newItem) => bloc.add(
+            DashboardTransactionUpdated(
+              oldItem: oldItem,
+              newItem: newItem,
+            ),
+          ),
         ),
       DashboardSurface.main => switch (state.currentIndex) {
           0 => HomeDashboard(
               userName: userName,
               transactions: state.transactions,
-              onOpenHistory: () => cubit.selectTab(1),
-              onOpenBudget: () => cubit.showSurface(DashboardSurface.budget),
-              onOpenInsight: () => cubit.showSurface(DashboardSurface.insight),
+              onOpenHistory: () => bloc.add(const DashboardTabSelected(1)),
+              onOpenBudget: () => bloc
+                  .add(const DashboardSurfaceShown(DashboardSurface.budget)),
+              onOpenInsight: () => bloc.add(
+                const DashboardSurfaceShown(DashboardSurface.insight),
+              ),
             ),
           1 => HistoryDashboard(
               transactions: state.transactions,
-              onDelete: cubit.deleteTransaction,
-              onEdit: cubit.openEditTransaction,
-              onMarkSettled: cubit.markTransactionSettled,
+              onDelete: (item) => bloc.add(DashboardTransactionDeleted(item)),
+              onEdit: (item) => bloc.add(DashboardEditTransactionOpened(item)),
+              onMarkSettled: (item) =>
+                  bloc.add(DashboardTransactionSettled(item)),
             ),
           2 => ChartDashboard(transactions: state.transactions),
           _ => ProfileDashboard(
               initialName: userName,
               initialEmail: userEmail,
-              onOpenNotifications: () =>
-                  cubit.showSurface(DashboardSurface.notifications),
+              onOpenNotifications: () => bloc.add(
+                const DashboardSurfaceShown(DashboardSurface.notifications),
+              ),
               onAddHomeWidget: onRequestHomeWidget,
             ),
         },

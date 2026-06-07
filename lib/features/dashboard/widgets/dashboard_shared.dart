@@ -5,7 +5,7 @@ import '../../../core/theme/app_colors.dart';
 export 'package:flutter/material.dart';
 export 'package:flutter_bloc/flutter_bloc.dart';
 export '../../../core/theme/app_colors.dart';
-export '../bloc/dashboard_cubit.dart';
+export '../bloc/dashboard_bloc.dart';
 
 class ChildPageTopBar extends StatelessWidget {
   const ChildPageTopBar({super.key, required this.title, required this.onBack});
