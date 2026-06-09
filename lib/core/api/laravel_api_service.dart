@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'api_host.dart' if (dart.library.io) 'api_host_io.dart';
+
 class LaravelUser {
   const LaravelUser({
     required this.name,
@@ -66,10 +68,11 @@ class LaravelApiService {
 
   static final LaravelApiService instance = LaravelApiService._();
 
-  static const _baseUrl = String.fromEnvironment(
-    'SAKU_API_BASE_URL',
-    defaultValue: 'http://127.0.0.1:8000/api',
-  );
+  static String get _baseUrl {
+    const env = String.fromEnvironment('SAKU_API_BASE_URL', defaultValue: '');
+    return env.isNotEmpty ? env : getDefaultApiBaseUrl();
+  }
+
   static const _tokenKey = 'saku_laravel_token';
   static const _walletIdKey = 'saku_laravel_wallet_id';
 

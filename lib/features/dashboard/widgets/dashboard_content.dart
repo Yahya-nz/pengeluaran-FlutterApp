@@ -40,25 +40,25 @@ class DashboardContent extends StatelessWidget {
       DashboardSurface.addExpense => AddNoteDashboard(
           mode: AddNoteMode.expense,
           onBack: () => bloc.add(const DashboardMainShown()),
-          onSwitchMode: (mode) => bloc.add(DashboardAddNoteShown(mode)),
+          onSwitchMode: (mode) => bloc.add(DashboardAddNoteShown(mode: mode)),
           onSave: (item) => bloc.add(DashboardTransactionAdded(item)),
         ),
       DashboardSurface.addIncome => AddNoteDashboard(
           mode: AddNoteMode.income,
           onBack: () => bloc.add(const DashboardMainShown()),
-          onSwitchMode: (mode) => bloc.add(DashboardAddNoteShown(mode)),
+          onSwitchMode: (mode) => bloc.add(DashboardAddNoteShown(mode: mode)),
           onSave: (item) => bloc.add(DashboardTransactionAdded(item)),
         ),
       DashboardSurface.addDebt => AddNoteDashboard(
           mode: AddNoteMode.debt,
           onBack: () => bloc.add(const DashboardMainShown()),
-          onSwitchMode: (mode) => bloc.add(DashboardAddNoteShown(mode)),
+          onSwitchMode: (mode) => bloc.add(DashboardAddNoteShown(mode: mode)),
           onSave: (item) => bloc.add(DashboardTransactionAdded(item)),
         ),
       DashboardSurface.addLoan => AddNoteDashboard(
           mode: AddNoteMode.loan,
           onBack: () => bloc.add(const DashboardMainShown()),
-          onSwitchMode: (mode) => bloc.add(DashboardAddNoteShown(mode)),
+          onSwitchMode: (mode) => bloc.add(DashboardAddNoteShown(mode: mode)),
           onSave: (item) => bloc.add(DashboardTransactionAdded(item)),
         ),
       DashboardSurface.editTransaction => EditTransactionDashboard(
